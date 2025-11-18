@@ -57,6 +57,7 @@ fonts-font-awesome
 xinit
 xss-lock
 dunst
+gnome-themes-extra
 libnotify-bin
 feh
 libxft-dev

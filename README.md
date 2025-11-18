@@ -81,6 +81,8 @@ cp <path to repo>/suckless ~/.local
 flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 flatpak --user remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+flatpak --user override --filesystem="/usr/share/themes"
+flatpak --user override --filesystem="/usr/share/icons"
 ```
 * flathub repos (https://flathub.org/en)
 ```

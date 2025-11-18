@@ -8,7 +8,6 @@ DWMLOG="$HOME/.dwm.log"
 FEHBG="$HOME/.fehbg"
 BRIGHT="$HOME/.bright"
 LOCKER="$HOME/.screenlocker"
-export GTK_THEME="Adwaita:dark"
 
 if [ -f "$DWMLOG" ]
 then
@@ -44,5 +43,3 @@ if [ -f "$LOCKER" ]
 then
 	rm -f "$LOCKER"
 fi
-
-unset GTK_THEME
