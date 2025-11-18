@@ -1,0 +1,7 @@
+[user]
+	name = <your name>
+	email = <your email>
+[core]
+	editor = nano
+[init]
+	defaultBranch = main

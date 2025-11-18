@@ -1,0 +1,1 @@
+dialout,cdrom,floppy,audio,dip,video,plugdev,users,netdev,input,bluetooth

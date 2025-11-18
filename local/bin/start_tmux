@@ -1,0 +1,59 @@
+#!/bin/sh
+
+#
+# ~/local/bin/start_tmux
+#
+
+FBTERM="$(which fbterm 2>/dev/null)"
+TMUXCMD="$(which tmux 2>/dev/null)"
+SESSION="$XDG_SEAT-$XDG_SESSION_ID"
+
+if [ -z "$FBTERM" ]
+then
+	printf "\ninstall fbterm to view simple character graphics\n\n"
+fi
+
+if [ -z "$TMUXCMD" ]
+then
+	printf "\ninstall tmux\n\n"
+	exit 127
+fi
+
+run_tmux() {
+	if ! tmux has-session -t="$SESSION" > /dev/null 2>&1
+	then
+		TMUX="" $TMUXCMD new-session -d -s "$SESSION"
+	fi
+
+	if [ "$TMUX" = "" ]
+	then
+		if [ -z "$1" ]
+		then
+			$TMUXCMD attach-session -t "$SESSION"
+		else
+			$FBTERM -- "$TMUXCMD" attach-session -t "$SESSION"
+		fi
+	else
+		if [ -z "$1" ]
+		then
+			$TMUXCMD switch-client -t "$SESSION"
+		else
+			$FBTERM -- "$TMUXCMD" switch-client -t "$SESSION"
+		fi
+	fi
+}
+
+if [ -t 0 ]
+then
+	if [ -n "$1" ]
+	then
+		SESSION="$1"
+	fi
+
+	if ! env | grep -q DISPLAY > /dev/null 2>&1
+	then
+		run_tmux "fbterm"
+	else
+		run_tmux
+	fi
+fi

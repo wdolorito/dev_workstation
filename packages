@@ -1,0 +1,66 @@
+opendoas
+iwd
+fastfetch
+physlock
+shellcheck
+
+tmux
+fbterm
+# setcap 'cap_sys_tty_config+ep' /usr/bin/fbterm
+
+pipewire-audio
+pulseaudio-utils
+pavucontrol
+brightnessctl
+# usermod -a -G input <user> (also for keyboard backlight ie. mbp 5,5)
+
+# bluetooth:
+bluez
+bluez-tools
+
+imv
+fbi
+mpv
+rename
+mediainfo
+brasero
+
+7zip
+
+# contrib non-free packages:
+libdvd-pkg
+# dkg-reconfigure libdvd-pkg
+
+7zip-rar
+
+git
+clang
+lld
+lldb
+cmake
+ninja-build
+
+gnome-disk-utility
+testdisk
+cgpt
+
+command-not-found
+# update-command-not-found
+apt-file
+# apt-file update
+
+flatpak
+fonts-recommended
+fonts-inconsolata
+fonts-font-awesome
+
+xinit
+xss-lock
+dunst
+libnotify-bin
+feh
+libxft-dev
+libxinerama-dev
+picom
+scrot
+slop

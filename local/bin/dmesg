@@ -1,0 +1,20 @@
+#!/bin/sh
+
+#
+# ~/local/bin/dmesg
+#
+
+DMESG="$(which /usr/bin/dmesg 2>/dev/null)"
+DOAS="$(which doas 2>/dev/null)"
+
+if [ -z "$DOAS" ]
+then
+	exit 1
+fi
+
+if [ -z "$DMESG" ]
+then
+	exit 127
+fi
+
+$DOAS "$DMESG"

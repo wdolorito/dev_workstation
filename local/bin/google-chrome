@@ -1,0 +1,51 @@
+#!/bin/sh
+
+#
+# ~/local/bin/google-chrome
+#
+
+CMD="/usr/bin/google-chrome"
+FLATPAK="$(which flatpak 2>/dev/null)"
+FLATPAKERRMSG=""
+PKG="com.google.Chrome"
+
+do_error() {
+	printf "\ninstall a package that supplies \"%s\"\n" "$CMD"
+
+	if [ -n "$FLATPAKERRMSG" ]
+	then
+		printf "%s\n\n" "$FLATPAKERRMSG"
+	else
+		printf "\n"
+	fi
+
+	exit 127
+}
+
+launch_program() {
+	if ! $CMD "$@" 2>/dev/null
+	then
+		do_error
+	fi
+}
+
+if ! [ -x "$CMD" ]
+then
+	if [ -n "$FLATPAK" ]
+	then
+		if $FLATPAK list | grep -q "$PKG"
+		then
+			CMD="$FLATPAK run $PKG"
+		else
+			FLATPAKERRMSG="or install from flatpak repo with \"$FLATPAK install $PKG\""
+		fi
+	fi
+fi
+
+if ! env | grep -q DISPLAY
+then
+	printf "\nNot in a graphical session\n\n"
+	exit 1
+else
+	launch_program "$@"
+fi

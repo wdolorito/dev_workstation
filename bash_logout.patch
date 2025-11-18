@@ -1,0 +1,30 @@
++++ .bash_logout	2025-05-28 22:02:28.652772504 -0600
+@@ -1,5 +1,28 @@
+ # ~/.bash_logout: executed by bash(1) when login shell exits.
+ 
++LOGINCTL="$(which loginctl 2>/dev/null)"
++
++if [ -n "$LOGINCTL" ]
++then
++	NUMSESSIONS="$($LOGINCTL | grep "$(whoami)" | grep -n . | tail -n 1 | awk -F \: '{print $1}')"
++
++	if [ "$NUMSESSIONS" -eq 1 ]
++	then
++		if [ -S "$SSH_AUTH_SOCK" ]
++		then
++			if [ -z "$TMUX" ]
++			then
++				for AGENT in $(pgrep ssh-agent)
++				do
++					kill -TERM "$AGENT"
++				done
++
++				rm -f "$SSH_AUTH_SOCK"
++			fi
++		fi
++	fi
++fi
++
+ # when leaving the console clear the screen to increase privacy
+ 
+ if [ "$SHLVL" = 1 ]; then

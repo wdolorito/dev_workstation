@@ -1,0 +1,89 @@
+#!/bin/sh
+
+#
+# ~/local/bin/gen_fpbins
+#
+
+BINDIR="$HOME/.local/fpbin"
+LAUNCHER="$(which gtk-launch)"
+
+reset_bins() {
+	if [ -d "$BINDIR" ]
+	then
+		rm -rf "$BINDIR"
+	fi
+
+	mkdir -p "$BINDIR"
+}
+
+test_appname() {
+	case "$APPNAME" in
+		"Chrome" )
+			APPNAME=""
+			;;
+		"codium" )
+			APPNAME=""
+			;;
+		"codium-url-handler" )
+			APPNAME=""
+			;;
+		"firefox" )
+			APPNAME=""
+			;;
+		"LibreOffice" )
+			APPNAME=""
+			;;
+		"mimeinfo" )
+			APPNAME=""
+			;;
+		"Opera" )
+			APPNAME=""
+			;;
+		"xsltfilter" )
+			APPNAME=""
+			;;
+		* )
+			;;
+	esac
+}
+
+create_bin_file() {
+	if [ -n "$APPNAME" ]
+	then
+		{
+			echo "#!/bin/sh" > "$BINDIR"/"$APPNAME"
+			echo ""
+			echo "#"
+			echo "# ~/.local/fpbin/$APPNAME"
+			echo "#"
+			echo ""
+			echo "$LAUNCHER $(basename "$1")"
+		} >> "$BINDIR"/"$APPNAME"
+		chmod +x "$BINDIR"/"$APPNAME"
+	fi
+}
+
+parse_launcher() {
+	for app in "$1"/*.desktop
+	do
+		if [ -e "$app" ]
+		then
+			APPNAME="$(echo "$app" | awk -F . '{print $(NF -1)}')"
+			test_appname
+			create_bin_file "$app"
+		fi
+	done
+}
+
+reset_bins
+
+for dir in $(echo "$XDG_DATA_DIRS" | sed 's/:/ /g')
+do
+	if echo "$dir" | grep -q "flatpak" >/dev/null
+	then
+		if [ -d "$dir/applications" ]
+		then
+			parse_launcher "$dir/applications"
+		fi
+	fi
+done

@@ -1,0 +1,48 @@
+#!/bin/sh
+
+#
+# ~/local/bin/start_dwm
+#
+
+DWMLOG="$HOME/.dwm.log"
+FEHBG="$HOME/.fehbg"
+BRIGHT="$HOME/.bright"
+LOCKER="$HOME/.screenlocker"
+export GTK_THEME="Adwaita:dark"
+
+if [ -f "$DWMLOG" ]
+then
+	rm -f "$DWMLOG"
+fi
+
+if ! [ -d "$HOME/.local/.fpbin" ]
+then
+	gen_fpbins
+fi
+
+bright 30 > "$BRIGHT"
+startx
+
+if [ -f "$FEHBG" ]
+then
+	rm -f "$FEHBG"
+fi
+
+if ! [ -s "$DWMLOG" ]
+then
+	rm -f "$DWMLOG"
+else
+	echo "check ${DWMLOG}"
+fi
+
+if [ -f "$BRIGHT" ]
+then
+	rm -f "$BRIGHT"
+fi
+
+if [ -f "$LOCKER" ]
+then
+	rm -f "$LOCKER"
+fi
+
+unset GTK_THEME

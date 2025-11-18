@@ -1,0 +1,65 @@
+#!/bin/sh
+
+#
+# ~/local/bin/vol
+#
+
+PACTL="$(which pactl 2>/dev/null)"
+if [ -z "$PACTL" ]
+then
+	printf "install a package that supplies the pactl utility\n"
+	exit 127
+fi
+
+CURR="$($PACTL get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | tr -d '%')"
+DISPVAL="0"
+MUTE="$($PACTL get-sink-mute @DEFAULT_SINK@ |  awk '{print $2}')"
+
+vol_up() {
+	if [ "$MUTE" = "no" ]
+	then
+		if [ "$CURR" -lt 96 ]
+		then
+			$PACTL set-sink-volume @DEFAULT_SINK@ +5%
+		fi
+	fi
+}
+
+vol_down() {
+	if [ "$MUTE" = "no" ]
+	then
+		$PACTL set-sink-volume @DEFAULT_SINK@ -5%
+	fi
+}
+
+vol_mute() {
+	$PACTL set-sink-mute @DEFAULT_SINK@ toggle
+}
+
+vol_mic() {
+	$PACTL set-source-mute @DEFAULT_SOURCE@ toggle
+}
+
+case "$1" in
+	"up" )
+		vol_up
+		;;
+	"down" )
+		vol_down
+		;;
+	"mute" )
+		vol_mute
+		;;
+	"mic" )
+		vol_mic
+		;;
+	* )
+		;;
+esac
+
+if [ "$MUTE" = "no" ]
+then
+	DISPVAL="$($PACTL get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | tr -d '%')"
+fi
+
+echo "$DISPVAL"

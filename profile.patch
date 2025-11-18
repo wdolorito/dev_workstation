@@ -1,0 +1,17 @@
++++ .profile	2025-05-28 07:16:22.034055514 -0600
+@@ -25,3 +25,15 @@
+ if [ -d "$HOME/.local/bin" ] ; then
+     PATH="$HOME/.local/bin:$PATH"
+ fi
++
++# set PATH so it includes user's local bin if it exists
++if [ -d "$HOME/local/bin" ]
++then
++	PATH="$HOME/local/bin:$PATH"
++fi
++
++# for flatpak dmenu launchers
++PATH="$PATH:$HOME/.local/fpbin"
++
++# disable telemetry when working with nextjs
++export NEXT_TELEMETRY_DISABLED=1

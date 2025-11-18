@@ -1,0 +1,55 @@
+#!/bin/sh
+
+STATE=""
+OUTPUTFILE="$HOME/.screenlocker"
+
+update_state() {
+	STATE="$(xset q | grep timeout | awk '{print $2}')"
+}
+
+disable_locker() {
+	xset s off
+	xset s noblank
+	xset -dpms
+}
+
+enable_locker() {
+	xset s on
+	xset s blank
+	xset +dpms
+	xset s 300
+}
+
+check_state() {
+	update_state
+
+	if [ "$STATE" -eq 0 ]
+	then
+		echo "lock off" > "$OUTPUTFILE"
+	else
+		echo "lock on" > "$OUTPUTFILE"
+	fi
+}
+
+toggle_state() {
+	if [ "$STATE" -eq 0 ]
+	then
+		enable_locker
+	else
+		disable_locker
+	fi
+}
+
+case "$1" in
+	"clean" )
+		rm -f "$OUTPUTFILE"
+		;;
+	"check" )
+		check_state
+		;;
+	* )
+		update_state
+		toggle_state
+		check_state
+		;;
+esac

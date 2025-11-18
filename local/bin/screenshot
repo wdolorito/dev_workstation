@@ -1,0 +1,54 @@
+#!/bin/sh
+
+#
+# ~/local/bin/screenshot
+#
+
+SCROT=""
+SLOP=""
+SSDIR=""
+
+if ! env | grep DISPLAY >/dev/null
+then
+	echo "not in X session"
+	exit 1
+fi
+
+SCROT="$(which scrot 2>/dev/null)"
+
+if [ -z "$SCROT" ]
+then
+	echo "scrot utility not available"
+	exit 127
+fi
+
+SLOP="$(which slop 2>/dev/null)"
+
+if [ -z "$SLOP" ]
+then
+	echo "slop utility not available"
+	exit 127
+fi
+
+SSDIR="$HOME/Pictures/screenshot"
+
+if ! [ -d "$SSDIR" ]
+then
+	mkdir -p "$SSDIR"
+fi
+
+do_fullscreen() {
+	$SCROT -F "$SSDIR/screen-$(date '+%F_%H.%M.%S').png"
+}
+
+do_crop() {
+	$SCROT -a $($SLOP -f '%x,%y,%w,%h') -F "$SSDIR/crop-$(date '+%F_%H.%M.%S').png"
+}
+
+
+if [ -z "$1" ]
+then
+	do_fullscreen
+else
+	do_crop
+fi

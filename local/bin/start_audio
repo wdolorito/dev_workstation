@@ -1,0 +1,43 @@
+#!/bin/sh
+
+#
+# ~/local/bin/start_audio
+#
+
+PIDS="$(pgrep -u "$USER" pipewire)"
+PIDS="${PIDS} $(pgrep -u "$USER" wireplumber)"
+
+kill_pipewire() {
+	if ! [ "$PIDS" = " " ]
+	then
+		for pid in $PIDS
+		do
+			kill -TERM "$pid"
+		done
+	fi
+}
+
+init_pipewire() {
+	if ! [ "$PIDS" = " " ]
+	then
+		exit 0
+	fi
+
+	pipewire >/dev/null 2>&1 &
+	sleep 2
+	wireplumber >/dev/null 2>&1 &
+	pipewire-pulse >/dev/null 2>&1 &
+}
+
+case "$1" in
+	"kill" )
+		kill_pipewire
+		;;
+	"reset" )
+		kill_pipewire
+		init_pipewire
+		;;
+	* )
+		init_pipewire
+		;;
+esac

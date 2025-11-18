@@ -1,0 +1,8 @@
+codezombiech.gitignore
+espressif.esp-idf-extension
+llvm-vs-code-extensions.vscode-clangd
+mhutchie.git-graph
+paragdiwan.gitpatch
+rokucommunity.brightscript
+timonwong.shellcheck
+waderyan.gitblame

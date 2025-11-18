@@ -1,0 +1,28 @@
+--- /etc/skel/.bashrc	2023-04-23 15:23:06.000000000 -0600
++++ .bashrc	2025-05-29 18:30:49.082568796 -0600
+@@ -111,3 +111,25 @@
+     . /etc/bash_completion
+   fi
+ fi
++
++# ssh-agent
++if [ -z "$SSH_AUTH_SOCK" ] && ! [ "$TERM_PROGRAM" = "vscode" ]
++then
++	export SSH_AUTH_SOCK="$HOME"/.ssh/ssh-agent.socket
++	export SSH_ASKPASS_REQUIRE="never"
++fi
++"$HOME"/.ssh/add_ssh_keys
++
++# pipewire
++"$HOME"/local/bin/start_audio
++
++if [ "$TERM" = "linux" ]
++then
++        "$HOME"/local/bin/start_tmux
++fi
++
++FORTUNE="$(which fortune 2>&1)" >/dev/null
++if [ -x "$FORTUNE" ]
++then
++        $FORTUNE
++fi

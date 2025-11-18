@@ -1,0 +1,27 @@
+#!/bin/sh
+
+APT=""
+DOAS="$(which doas 2>/dev/null)"
+
+if [ -z "$DOAS" ]
+then
+	exit 127
+fi
+
+APT="$(which apt-get 2>/dev/null)"
+
+if [ -z "$APT" ]
+then
+	exit 127
+fi
+
+do_system_update() {
+	$DOAS "$APT" update
+	$DOAS "$APT" -y dist-upgrade
+	$DOAS "$APT" -y autoremove --purge
+	$DOAS "$APT" autoclean
+	$DOAS "$APT" clean
+}
+
+do_system_update
+flatpak_update

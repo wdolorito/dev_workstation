@@ -1,0 +1,54 @@
+#!/bin/sh
+
+#
+# ~/local/bin/toggle_airplane
+#
+
+RFKILL="$(which /sbin/rfkill)"
+DHCLIENT=""
+STATUS=""
+
+if [ -z "$RFKILL" ]
+then
+	exit 127
+fi
+
+DHCLIENT="$(which dhclient)"
+
+if [ -z "$DHCLIENT" ]
+then
+	exit 127
+fi
+
+disable_wireless() {
+	$RFKILL block all >/dev/null 2>&1
+	$DHCLIENT -r >/dev/null 2>&1
+}
+
+enable_wireless() {
+	$RFKILL unblock all >/dev/null 2>&1
+	$DHCLIENT >/dev/null 2>&1
+}
+
+STATUS="$($RFKILL | grep wlan | awk '{print $4}')"
+
+toggle() {
+	if [ "$STATUS" = "unblocked" ]
+	then
+		disable_wireless
+	else
+		enable_wireless
+	fi
+}
+
+case "$1" in
+	"kill" )
+		disable_wireless
+		;;
+	"enable" )
+		enable_wireless
+		;;
+	* )
+		toggle
+		;;
+esac
