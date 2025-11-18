@@ -65,7 +65,7 @@ iface eth0 inet dhcp
 ```
 cd # switch to home directory
 for patch in <path to repo>/user_files/*.patch ; do patch < "$patch" ; done
-cp -r <path to repo>/dots/.conf ~/
+cp -r <path to repo>/dots/.config ~/
 cp -r <path to repo>/dots/.ssh ~/
 cp <path to repo>/dots/.fbtermrc ~/
 cp <path to repo>/dots/.gitconfig ~/
