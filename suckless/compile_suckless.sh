@@ -92,20 +92,21 @@ do_all() {
 
 
 case "$1" in
-	"dwm" )
-		do_dwm
-		;;
-	"dmenu" )
-		do_dmenu
-		;;
-	"slstatus" )
-		do_slstatus
-		;;
-	"st" )
-		do_st
-		;;
-	* )
-		rm -rf "$BUILDDIR"
-		do_all
-		;;
+  "dwm" )
+    do_dwm
+    ;;
+  "dmenu" )
+    do_dmenu
+    ;;
+  "slstatus" )
+    do_slstatus
+    ;;
+  "st" )
+    do_st
+    ;;
+  * )
+    rm -rf "$BUILDDIR"
+    mkdir -p "$BUILDDIR"
+    do_all
+    ;;
 esac
