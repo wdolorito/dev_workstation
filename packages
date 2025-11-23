@@ -23,14 +23,9 @@ fbi
 mpv
 rename
 mediainfo
-brasero
-
 7zip
 
 # contrib non-free packages:
-libdvd-pkg
-# dkg-reconfigure libdvd-pkg
-
 7zip-rar
 
 git
