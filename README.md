@@ -39,7 +39,7 @@ sed -i 's/<user>/<your user>/g' /etc/doas.conf
 ```
 cp <path to repo>/root_files/interfaces /etc/network
 # enable and start iwd (if using wifi)
-service iwd enable
+update-rc.d iwd enable
 service iwd start
 # setup wifi
 iwctl station wlan0 connect <SSID> # wait for Passphrase prompt
