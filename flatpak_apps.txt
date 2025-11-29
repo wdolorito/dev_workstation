@@ -6,6 +6,7 @@ com.ultimaker.cura
 com.vscodium.codium
 es.danirod.Cartero
 one.ablaze.floorp
+org.apache.netbeans
 org.filezillaproject.Filezilla
 org.freecad.FreeCAD
 org.freedesktop.Sdk.Extension.llvm20

@@ -86,15 +86,19 @@ flatpak --user remote-add --if-not-exists flathub-beta https://flathub.org/beta-
 ```
 for app in $(cat flatpak_apps.txt) ; do flatpak install flathub -y --noninteractive "$app" ; done
 ```
-* when prompted for extensions (llvm, node, openjdk), install runtime used by codium
+* when prompted for extensions (llvm, node), install runtime used by codium
 ```
 flatpak info com.vscodium.codium | grep Runtime | awk -F / '{print $(NF)}'
+```
+* when prompted for openjdk extension, install runtime used by netbeans
+```
+flatpak info org.apache.netbeans | grep Runtime | awk -F / '{print $(NF)}'
 ```
 
 ### codium setup
 ```
 for extension in $(cat codium_extensions.txt) ; do codium --install-extension "$extension" ; done
-flatpak --user override --env="FLATPAK_ENABLE_SDK_EXT=llvm20,node24,openjdk21" com.vscodium.codium
+flatpak --user override --env="FLATPAK_ENABLE_SDK_EXT=llvm20,node24" com.vscodium.codium
 ```
 #### additional codium setup
 * start codium
@@ -103,6 +107,12 @@ flatpak --user override --env="FLATPAK_ENABLE_SDK_EXT=llvm20,node24,openjdk21" c
 * change to 'bash'
 * search 'ttyusb'
 * change to /dev/ttyUSB0
+
+### netbeans setup
+```
+flatpak --user override --env="FLATPAK_ENABLE_SDK_EXT=openjdk21" org.apache.netbeans
+flatpak --user override --env="_JAVA_AWT_WM_NONREPARENTING=1" org.apache.netbeans
+```
 
 ### misc utils
 * toggle screenlocker on and off
