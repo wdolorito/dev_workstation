@@ -1,0 +1,11 @@
+#!/bin/sh
+
+#
+# ~/local/bin/sudo
+#
+
+PATH="/bin:/sbin"
+BCMD="$(which "$1")"
+
+BCMD="$(echo "$@" | sed 's/$1/$BCMD/g')"
+$(which doas) $BCMD

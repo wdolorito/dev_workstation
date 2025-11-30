@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#
+# ~/local/bin/toggle_lock
+#
+
 STATE=""
 OUTPUTFILE="$HOME/.screenlocker"
 
