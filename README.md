@@ -26,12 +26,13 @@ apt-get -y autoremove --purge
 apt-get -y autoclean
 apt-get -y clean
 dpkg -l | grep ^rc | awk '{print $2}' | xargs apt-get purge -y
+apt-get purge sudo
+apt-get purge wpasupplicant
 ```
 * check ```pacakges``` file for additional comments/directions
 * after adding a user (```adduser/useradd```), add user to basic groups
 ```
 usermod -aG <user> $(cat <path to repo>/root_files/user_groups.txt)
-sed -i 's/<user>/<your user>/g' /etc/doas.conf
 ```
 
 ### networking
