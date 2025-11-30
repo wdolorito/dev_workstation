@@ -145,3 +145,6 @@ cd ..
 ```
 start_dwm
 ```
+
+### bookmarks
+* import bookmarks from ```user_files/bookmarks-devuan.json``` in to floorp (ctl-shift-o, Import and Backup, Restore, Choose File)
