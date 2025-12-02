@@ -95,6 +95,11 @@ flatpak info com.vscodium.codium | grep Runtime | awk -F / '{print $(NF)}'
 ```
 flatpak info org.apache.netbeans | grep Runtime | awk -F / '{print $(NF)}'
 ```
+* dark mode
+```
+flatpak --user override --env="GTK_THEME=Adwaita:dark"
+gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+```
 
 ### codium setup
 ```
