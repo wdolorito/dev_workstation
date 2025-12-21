@@ -1,0 +1,131 @@
+#!/bin/sh
+
+#
+# ~/local/bin/browser_profile_to_tmpfs
+#
+
+TDIR="/dev/shm"
+PDATA=""
+BPDATA=""
+PDBAK=""
+PTEMPFILE=""
+PTEMP=""
+
+show_usage() {
+	printf "\n\tusage:  %s <action> <profile dir> <tempfile>\n\n" "$0"
+	printf "\t<action>\t- 'help', 'copy','clean' or 'recover'\n"
+	printf "\t<profile dir>\t- location of browser profile directory\n\t\t\t\te.g. \"\$HOME/.mozilla\"\n"
+	printf "\t<tempfile>\t- location and name of file to store location of temporary profile directory\n\t\t\t\te.g. \"\$HOME/.ffrun\"\n"
+	printf "\n\t<action> options:\n"
+	printf "\thelp\t- print extended information about the usage of this script\n"
+	printf "\tcopy\t- create temporary directory in %s and copy the profile directory to it\n" "$TDIR"
+	printf "\tclean\t- sync changes from the temporary browser profile to disk and clean up\n"
+	printf "\trecover\t- restore the backup and clean up\n\n"
+	exit 1
+}
+
+long_help() {
+	printf "\n\tThe purpose of this utility is to move the directory used for an arbitrary web\n"
+	printf "\tbrowser in to fast tmpfs space to boost perceived speed and responsiveness.\n"
+	printf "\tThis should also relieve write operations to disks which will decrease local\n"
+	printf "\tstorage wear. (Particularly of interest for SSDs).\n"
+	printf "\n\tThe default target storage location of this script is /dev/shm; edit the TDIR\n"
+	printf "\tvariable in this script (%s)\n" "$0"
+	printf "\tif another location is desired.\n"
+	printf "\n\tBrowser profile directories may be stored in the user \$HOME directory as in\n"
+	printf "\tthe short help example (\"\$HOME/.mozilla\"), the \$HOME directory .config\n"
+	printf "\tdirectory (\"\$HOME/.config/chromium\"), or perhaps the \$HOME .var directory\n"
+	printf "\t(\"\$HOME/.var/app/com.opera.Opera\") in the case of flatpak installed applications.\n"
+	printf "\n\tExample usage:\n\n"
+	printf "\t<*optional> %s recover \"\$HOME/.floorp\" \"\$HOME/.flrun\"\n" "$(basename "$0")"
+	printf "\t%s copy \"\$HOME/.floorp\" \"\$HOME/.flrun\"\n" "$(basename "$0")"
+	printf "\tfloorp\n"
+	printf "\t<browse the web>\n"
+	printf "\t<exit floorp>\n"
+	printf "\t%s clean \"\$HOME/.floorp\" \"\$HOME/.flrun\"\n\n" "$(basename "$0")"
+	printf "\t* run the recover action if temporary data is corrupted, i.e. in event of system crash.\n\n"
+	exit 1
+}
+
+copy_to_tmpfs() {
+	if [ -d "$TDIR" ] && [ -d "$PDATA" ] && ! [ -f "$PTEMPFILE" ]
+	then
+		PTEMP="$(mktemp -d --tmpdir=$TDIR)"
+		rsync -a "$PDATA" "$PTEMP"
+		mv "$PDATA" "$PDBAK"
+		ln -s "$PTEMP/$BPDATA" "$PDATA"
+		echo "$PTEMP" > "$PTEMPFILE"
+	fi
+}
+
+sync_before_exit() {
+	if [ -h "$PDATA" ] && [ -d "$PDBAK" ] && [ -f "$PTEMPFILE" ]
+	then
+		PTEMP="$(cat "$PTEMPFILE")"
+		rsync -a "$PTEMP/$BPDATA/" "$PDBAK"
+		rm -f "$PDATA"
+		mv "$PDBAK" "$PDATA"
+		rm -rf "$PTEMP"
+		rm -rf "$PTEMPFILE"
+	fi
+}
+
+check_recovery() {
+	if [ -f "$PTEMPFILE" ]
+	then
+		PTEMP="$(cat "$PTEMPFILE")"
+		if ! [ -d "$PTEMP" ]
+		then
+			rm -f "$PTEMPFILE"
+			if [ -h "$PDATA" ]
+			then
+				rm -f "$PDATA"
+				if [ -d "$PDBAK" ]
+				then
+					mv "$PDBAK" "$PDATA"
+				fi
+			fi
+		fi
+	fi
+}
+
+parse_options() {
+	if [ "$1" = "help" ]
+	then
+		long_help
+	fi
+
+	if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ] || [ -n "$4" ]
+	then
+		show_usage
+	fi
+
+	if [ -n "$2" ]
+	then
+		PDATA="$2"
+		BPDATA="$(basename "$PDATA")"
+		PDBAK="$PDATA".bak
+	fi
+
+	if [ -n "$3" ]
+	then
+		PTEMPFILE="$3"
+	fi
+
+	case $1 in
+		"copy")
+			copy_to_tmpfs
+			;;
+		"clean")
+			sync_before_exit
+			;;
+		"recover")
+			check_recovery
+			;;
+		*)
+			show_usage
+			;;
+	esac
+}
+
+parse_options "$@"
