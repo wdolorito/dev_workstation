@@ -63,6 +63,11 @@ iface eth0 inet dhcp
 * do not add wireless interface definition for this reason
 ### setup user paths + login
 #### as user:
+##### *optional*:
+To use ```mksh``` as default shell:
+```
+chsh <enter password and enter '/bin/mksh' when prompted>
+cp /etc/skel/.mksh "$HOME"
 ```
 cd # switch to home directory
 for patch in <path to repo>/user_files/*.patch ; do patch < "$patch" ; done
