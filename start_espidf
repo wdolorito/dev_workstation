@@ -1,0 +1,134 @@
+#!/bin/bash
+
+#
+# ~/local/bin/start_espidf
+#
+
+unset HISTFILE
+
+REPO="https://github.com/espressif/esp-idf.git"
+BASEIDFPATH="$HOME/esp"
+ESPIDFPATH="$BASEIDFPATH/esp-idf"
+ESPRELEASE="release/v5.5"
+ESPTARGET="esp32"
+CWD="$(pwd)"
+
+download_tools() {
+	if ! [ -d "$ESPIDFPATH" ]
+	then
+		cd "$BASEIDFPATH"
+		git clone --recursive "$REPO"
+	fi
+}
+
+update_espidf() {
+	if [ -d "$ESPIDFPATH" ]
+	then
+		cd "$ESPIDFPATH"
+		git reset --hard
+		git checkout master
+		git pull
+		git checkout "$ESPRELEASE"
+	fi
+}
+
+clean_src() {
+	if [ -d "$ESPIDFPATH" ]
+	then
+		cd "$ESPIDFPATH"
+		rm -rf *
+		printf "\n%s cleaned.\n" "$ESPIDFPATH"
+	fi
+}
+
+remove_src() {
+	if [ -d "$ESPIDFPATH" ]
+	then
+		rm -rf "$ESPIDFPATH"
+		printf "\n%s removed.\n" "$ESPIDFPATH"
+	fi
+}
+
+clean_espressif() {
+	cd "$HOME/.espressif" || exit
+	rm -rf *
+	printf "\n%s cleaned.\n" "$HOME/.espressif"
+}
+
+clean_all() {
+	clean_src
+	clean_espressif
+}
+
+install_espidf() {
+	if [ -d "$ESPIDFPATH" ]
+	then
+		cd "$ESPIDFPATH"
+		./install.sh "$ESPTARGET"
+	fi
+}
+
+choose_release() {
+	if [ -d "$ESPIDFPATH" ]
+	then
+		cd "$ESPIDFPATH" || exit
+		mapfile -t CHOICES < <(git branch -r | cut -d '/' -f 2- | grep -v HEAD -)
+		count=0
+		for choice in "${CHOICES[@]}"
+		do
+			printf "%3d\t%s\n" "$count" "$choice"
+			count="$(($count + 1))"
+		done
+		printf "\n"
+		read OPTION
+		ESPRELEASE="${CHOICES[$OPTION]}"
+	else
+		echo "Tools not available."
+		echo "Download repo first."
+		exit 1
+	fi
+}
+
+export_espidf() {
+	if [ -d "$ESPIDFPATH" ]
+	then
+		cd "$ESPIDFPATH"
+		source export.sh
+		cd "$CWD"
+		export SHELL="$(which bash)"
+		exec bash
+	else
+		echo "Failed to set up environment."
+		exit 1
+	fi
+}
+
+case "$1" in
+	"choose" )
+		choose_release
+		update_espidf
+		clean_espressif
+		install_espidf
+		;;
+	"clean" )
+		clean_all
+		update_espidf
+		;;
+	"download" )
+		download_tools
+		update_espidf
+		clean_espressif
+		install_espidf
+		;;
+	"fullclean" )
+		remove_src
+		clean_espressif
+		;;
+	"update" )
+		update_espidf
+		install_espidf
+		;;
+	* )
+		export_espidf
+		;;
+esac
