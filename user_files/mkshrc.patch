@@ -1,0 +1,27 @@
+--- /etc/skel/.mkshrc	2025-04-26 18:43:26.000000000 -0600
++++ .mkshrc	2025-12-27 20:29:25.609470992 -0700
+@@ -18,7 +18,7 @@
+ [[ -s /etc/mkshrc ]] && \. /etc/mkshrc
+ 
+ # work around #813164
+-\\builtin alias ls='ls -N'
++\\builtin alias ls='ls -N --color=auto'
+ 
+ # prepend $debian_chroot support to PS1
+ p=$'\001'
+@@ -50,4 +50,15 @@
+ #\\builtin export LANG=C.UTF-8 LC_CTYPE=C.UTF-8
+ #\\builtin export LC_ALL=C.UTF-8
+ 
++\\builtin export HISTFILE="$HOME"/.mksh_history
++
++# ssh-agent
++if [ -z "$SSH_AUTH_SOCK" ]
++then
++       \\builtin export SSH_AUTH_SOCK="$HOME"/.ssh/ssh-agent.socket
++       \\builtin export SSH_ASKPASS_REQUIRE="never"
++fi
++
++"$HOME"/.ssh/add_ssh_keys
++
+ \: make sure this is the last line, to ensure a good return code
