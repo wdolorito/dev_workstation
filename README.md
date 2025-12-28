@@ -69,6 +69,7 @@ To use ```mksh``` as default shell:
 chsh <enter password and enter '/bin/mksh' when prompted>
 cp /etc/skel/.mksh "$HOME"
 ```
+```
 cd # switch to home directory
 for patch in <path to repo>/user_files/*.patch ; do patch < "$patch" ; done
 cp -r <path to repo>/dots/.config ~/
