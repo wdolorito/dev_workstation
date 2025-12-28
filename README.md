@@ -67,7 +67,7 @@ iface eth0 inet dhcp
 To use ```mksh``` as default shell:
 ```
 chsh <enter password and enter '/bin/mksh' when prompted>
-cp /etc/skel/.mksh "$HOME"
+cp /etc/skel/.mkshrc "$HOME"
 ```
 ```
 cd # switch to home directory
