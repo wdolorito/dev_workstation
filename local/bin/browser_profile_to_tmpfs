@@ -13,14 +13,15 @@ PTEMP=""
 
 show_usage() {
 	printf "\n\tusage:  %s <action> <profile dir> <tempfile>\n\n" "$0"
-	printf "\t<action>\t- 'help', 'copy','clean' or 'recover'\n"
+	printf "\t<action>\t- 'help', 'copy','clean', 'recover' or 'sync'\n"
 	printf "\t<profile dir>\t- location of browser profile directory\n\t\t\t\te.g. \"\$HOME/.mozilla\"\n"
 	printf "\t<tempfile>\t- location and name of file to store location of temporary profile directory\n\t\t\t\te.g. \"\$HOME/.ffrun\"\n"
 	printf "\n\t<action> options:\n"
 	printf "\thelp\t- print extended information about the usage of this script\n"
 	printf "\tcopy\t- create temporary directory in %s and copy the profile directory to it\n" "$TDIR"
 	printf "\tclean\t- sync changes from the temporary browser profile to disk and clean up\n"
-	printf "\trecover\t- restore the backup and clean up\n\n"
+	printf "\trecover\t- restore the backup and clean up\n"
+	printf "\tsync\t- sync temp data to disk\n\n"
 	exit 1
 }
 
@@ -42,6 +43,7 @@ long_help() {
 	printf "\t%s copy \"\$HOME/.floorp\" \"\$HOME/.flrun\"\n" "$(basename "$0")"
 	printf "\tfloorp\n"
 	printf "\t<browse the web>\n"
+	printf "\t%s sync \"\$HOME/.floorp\" \"\$HOME/.flrun\" (periodically if desired)\n" "$(basename "$0")"
 	printf "\t<exit floorp>\n"
 	printf "\t%s clean \"\$HOME/.floorp\" \"\$HOME/.flrun\"\n\n" "$(basename "$0")"
 	printf "\t* run the recover action if temporary data is corrupted, i.e. in event of system crash.\n\n"
