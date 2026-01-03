@@ -59,11 +59,18 @@ copy_to_tmpfs() {
 	fi
 }
 
-sync_before_exit() {
+sync_data() {
 	if [ -h "$PDATA" ] && [ -d "$PDBAK" ] && [ -f "$PTEMPFILE" ]
 	then
 		PTEMP="$(cat "$PTEMPFILE")"
 		rsync -a "$PTEMP/$BPDATA/" "$PDBAK"
+	fi
+}
+
+sync_before_exit() {
+	if [ -h "$PDATA" ] && [ -d "$PDBAK" ] && [ -f "$PTEMPFILE" ]
+	then
+		sync_data
 		rm -f "$PDATA"
 		mv "$PDBAK" "$PDATA"
 		rm -rf "$PTEMP"
@@ -122,6 +129,9 @@ parse_options() {
 			;;
 		"recover")
 			check_recovery
+			;;
+		"sync")
+			sync_data
 			;;
 		*)
 			show_usage
