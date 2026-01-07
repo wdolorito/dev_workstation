@@ -65,14 +65,14 @@ static const char unknown_str[] = "n/a";
  */
 static const struct arg args[] = {
 	/* function     argument */
-  { cat, " %s | ", "/home/<user>/.screenlocker" },
-  { cpu_perc,      "CPU %3s%% | ",   NULL    },
-  { ram_perc,      "RAM %2s%% | ",   NULL    },
-  { run_command,   "VOL %2s%% | ", "vol" },
-  { wifi_essid,    "%s ",          "wlan0" },
-  { wifi_perc,     "(%2s%%) | ",   "wlan0" },
-  { battery_perc,  "BAT %2s%% ",     "BAT1" },
-  { battery_state, "(%s) | ",       "BAT1" },
-  { cat, "BRIGHT %s | ", "/home/<user>/.bright" },
-  { datetime,      "%s ",            "%F %T" },
+  { cat,		" %s | ",	"/home/<user>/.screenlocker"	},
+  { cpu_perc,		"CPU %3s%% | ",	NULL				},
+  { ram_perc,		"RAM %2s%% | ",	NULL				},
+  { run_command,	"VOL %2s%% | ",	"vol"				},
+  { wifi_essid,		"%s ",		"wlan0"				},
+  { ipv4,		"(%s) | ",	"wlan0"				},
+  { battery_perc,	"BAT %2s%% ",	"BAT1"				},
+  { battery_state,	"(%s) | ",	"BAT1"				},
+  { cat,		"BRIGHT %s | ",	"/home/<user>/.bright"		},
+  { datetime,		"%s ",		"%F %T %Z"			},
 };
