@@ -10,6 +10,15 @@ BPDATA=""
 PDBAK=""
 PTEMPFILE=""
 PTEMP=""
+RSYNC="$(which rsync)"
+
+if [ -z "$RSYNC" ]
+then
+	echo "Install rsync utility."
+	exit 127
+else
+	RSYNC="$RSYNC --info=progress2 -a"
+fi
 
 show_usage() {
 	printf "\n\tusage:  %s <action> <profile dir> <tempfile>\n\n" "$0"
@@ -54,7 +63,7 @@ copy_to_tmpfs() {
 	if [ -d "$TDIR" ] && [ -d "$PDATA" ] && ! [ -f "$PTEMPFILE" ]
 	then
 		PTEMP="$(mktemp -d --tmpdir=$TDIR)"
-		rsync -a "$PDATA" "$PTEMP"
+		$RSYNC "$PDATA" "$PTEMP"
 		mv "$PDATA" "$PDBAK"
 		ln -s "$PTEMP/$BPDATA" "$PDATA"
 		echo "$PTEMP" > "$PTEMPFILE"
@@ -65,7 +74,7 @@ sync_data() {
 	if [ -h "$PDATA" ] && [ -d "$PDBAK" ] && [ -f "$PTEMPFILE" ]
 	then
 		PTEMP="$(cat "$PTEMPFILE")"
-		rsync -a "$PTEMP/$BPDATA/" "$PDBAK"
+		$RSYNC "$PTEMP/$BPDATA/" "$PDBAK"
 	fi
 }
 
