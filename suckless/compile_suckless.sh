@@ -3,15 +3,15 @@
 #
 # ~/.local/suckless/compile_suckless.sh
 #
-
-export CC=clang
-export LDFLAGS=-fuse-ld=lld
 BUILDDIR="$HOME"/.local/suckless/src
 TOPLEVEL="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 || exit 1; pwd -P)"
-if ! [ -d "$BUILDDIR" ]
-then
-  mkdir -p "$BUILDDIR"
-fi
+
+check_builddir() {
+  if ! [ -d "$BUILDDIR" ]
+  then
+    mkdir -p "$BUILDDIR"
+  fi
+}
 
 # clone and build suckless tools
 
@@ -83,30 +83,58 @@ do_st() {
   reset_vars
 }
 
+do_xob() {
+  export CC=clang
+  export LDFLAGS=-fuse-ld=lld
+  cd "$BUILDDIR" || exit
+  if ! [ -d "xob" ]
+  then
+    git clone "https://github.com/florentc/xob.git"
+  else
+    rm -rf xob
+    git clone "https://github.com/florentc/xob.git"
+  fi
+  cd xob || exit
+  CC=clang LDFLAGS=-fuse-ld=lld prefix="$HOME/.local" make install
+  if [ -d "$HOME/.local/etc" ]
+  then
+    rm -rf "$HOME/.local/etc"
+  fi
+  if ! [ -d "$HOME/.config/xob" ]
+  then
+    mkdir -p "$HOME/.config/xob"
+  fi
+  cp -v "$TOPLEVEL/suckless-conf/styles.cfg" "$HOME/.config/xob"
+}
+
 do_all() {
+  check_builddir
   do_dwm
   do_dmenu
   do_slstatus
   do_st
+  do_xob
 }
 
 
 case "$1" in
-  "dwm" )
-    do_dwm
-    ;;
-  "dmenu" )
-    do_dmenu
-    ;;
-  "slstatus" )
-    do_slstatus
-    ;;
-  "st" )
-    do_st
-    ;;
-  * )
-    rm -rf "$BUILDDIR"
-    mkdir -p "$BUILDDIR"
-    do_all
-    ;;
+	"dwm" )
+		do_dwm
+		;;
+	"dmenu" )
+		do_dmenu
+		;;
+	"slstatus" )
+		do_slstatus
+		;;
+	"st" )
+		do_st
+		;;
+	"xob" )
+		do_xob
+		;;
+	* )
+		rm -rf "$BUILDDIR"
+		do_all
+		;;
 esac

@@ -8,6 +8,7 @@ DWMLOG="$HOME/.dwm.log"
 FEHBG="$HOME/.fehbg"
 BRIGHT="$HOME/.bright"
 LOCKER="$HOME/.screenlocker"
+OBSOCK="$(make_ob_sock)"
 
 if [ -f "$DWMLOG" ]
 then
@@ -20,6 +21,8 @@ then
 fi
 
 bright 30 > "$BRIGHT"
+export OBSOCK
+ln -s "$HOME/.xinitrc-suckless" "$HOME/.xinitrc"
 startx
 
 if [ -f "$FEHBG" ]
@@ -43,3 +46,12 @@ if [ -f "$LOCKER" ]
 then
 	rm -f "$LOCKER"
 fi
+
+if [ -p "$OBSOCK" ]
+then
+	make_ob_sock destroy
+	do_ob clean
+	unset OBSOCK
+fi
+
+rm -f "$HOME/.xinitrc"

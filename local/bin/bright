@@ -50,6 +50,7 @@ DISPVAL="$($CMD -d "$DEV" | sed -n 2p | awk '{print $4}' | tr -d '()')"
 if env | grep -q DISPLAY
 then
 	echo "$DISPVAL" > "$OUTPUTFILE"
+	echo "$DISPVAL" | tr -d "%" | xargs do_ob
 else
 	echo "$DISPVAL"
 fi

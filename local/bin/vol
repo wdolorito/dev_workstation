@@ -14,6 +14,7 @@ fi
 CURR="$($PACTL get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | tr -d '%')"
 DISPVAL="0"
 MUTE="$($PACTL get-sink-mute @DEFAULT_SINK@ |  awk '{print $2}')"
+DOOB=1
 
 vol_up() {
 	if [ "$MUTE" = "no" ]
@@ -34,6 +35,7 @@ vol_down() {
 
 vol_mute() {
 	$PACTL set-sink-mute @DEFAULT_SINK@ toggle
+	MUTE="$($PACTL get-sink-mute @DEFAULT_SINK@ |  awk '{print $2}')"
 }
 
 vol_mic() {
@@ -54,6 +56,7 @@ case "$1" in
 		vol_mic
 		;;
 	* )
+		DOOB=0
 		;;
 esac
 
@@ -62,4 +65,9 @@ then
 	DISPVAL="$($PACTL get-sink-volume @DEFAULT_SINK@ | awk '{print $5}' | tr -d '%')"
 fi
 
-echo "$DISPVAL"
+if [ "$DOOB" -eq 1 ]
+then
+	do_ob "$DISPVAL"
+else
+	echo "$DISPVAL"
+fi
