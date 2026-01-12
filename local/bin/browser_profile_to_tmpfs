@@ -4,7 +4,7 @@
 # ~/local/bin/browser_profile_to_tmpfs
 #
 
-TDIR="/dev/shm"
+TDIR="/tmp"
 PDATA=""
 BPDATA=""
 PDBAK=""

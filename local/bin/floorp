@@ -8,6 +8,8 @@ CMD="/usr/bin/floorp"
 FLATPAK="$(which flatpak 2>/dev/null)"
 FLATPAKERRMSG=""
 PKG="one.ablaze.floorp"
+PDATA="$HOME/.floorp"
+PTEMPFILE="$HOME/.flrun"
 
 do_error() {
 	printf "\ninstall a package that supplies \"%s\"\n" "$CMD"
@@ -29,6 +31,17 @@ launch_program() {
 	fi
 }
 
+default() {
+	if ! env | grep -q DISPLAY
+	then
+		printf "\nNot in a graphical session\n\n"
+		exit 1
+	else
+		launch_program "$@"
+	fi
+
+}
+
 if ! [ -x "$CMD" ]
 then
 	if [ -n "$FLATPAK" ]
@@ -42,10 +55,20 @@ then
 	fi
 fi
 
-if ! env | grep -q DISPLAY
-then
-	printf "\nNot in a graphical session\n\n"
-	exit 1
-else
-	launch_program "$@"
-fi
+case "$1" in
+	"copy" )
+		browser_profile_to_tmpfs copy "$PDATA" "$PTEMPFILE"
+		;;
+	"clean" )
+		browser_profile_to_tmpfs clean "$PDATA" "$PTEMPFILE"
+		;;
+	"recover" )
+		browser_profile_to_tmpfs recover "$PDATA" "$PTEMPFILE"
+		;;
+	"sync" )
+		browser_profile_to_tmpfs sync "$PDATA" "$PTEMPFILE"
+		;;
+	* )
+		default "$@"
+		;;
+esac
