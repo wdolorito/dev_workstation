@@ -59,6 +59,7 @@ dunst
 gnome-themes-extra
 libnotify-bin
 feh
+libconfig-dev
 libxft-dev
 libxinerama-dev
 picom
