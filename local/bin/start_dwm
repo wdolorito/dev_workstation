@@ -6,7 +6,7 @@
 
 DWMLOG="$HOME/.dwm.log"
 FEHBG="$HOME/.fehbg"
-BRIGHT="$HOME/.bright"
+BRIGHT="$(bright file 2>/dev/null)"
 LOCKER="$HOME/.screenlocker"
 OBSOCK="$(make_ob_sock)"
 
@@ -20,7 +20,6 @@ then
 	gen_fpbins
 fi
 
-bright 30 > "$BRIGHT"
 export OBSOCK
 ln -s "$HOME/.xinitrc-suckless" "$HOME/.xinitrc"
 startx

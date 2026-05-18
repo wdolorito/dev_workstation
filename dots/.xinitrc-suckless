@@ -7,6 +7,9 @@ dunst &
 # set wallpaper
 #feh --bg-fill ~/Pictures/<image> &
 
+# initial brightness
+bright 30 false
+
 # compositor
 picom --vsync --backend glx &
 

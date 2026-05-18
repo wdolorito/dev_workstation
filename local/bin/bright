@@ -7,11 +7,12 @@
 CMD="$(which brightnessctl 2>/dev/null)"
 DEV=""
 DISPVAL=0
+DOOB=1
 OUTPUTFILE="$HOME/.bright"
 
 if [ -z "$CMD" ]
 then
-	printf "install a package that supplies the brightnessctl utility\n"
+	echo "brightnessctl not available."
 	exit 127
 fi
 
@@ -19,12 +20,16 @@ DEV="$($CMD | tr -d \' | grep backlight | awk '{print $2}')"
 
 if [ -z "$DEV" ]
 then
-	printf "this system doesn't have a display backlight\n"
+	echo "this system does not have a display backlight."
 	exit 1
 fi
 
 COMP="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
 case "$COMP" in
+	"file" )
+		echo "$OUTPUTFILE"
+		exit
+		;;
 	"up" )
 		$CMD -qd "$DEV"  set +5%
 		;;
@@ -45,12 +50,23 @@ case "$COMP" in
 		;;
 esac
 
+if [ -n "$2" ]
+then
+	if [ "$2" = "false" ]
+	then
+		DOOB=0
+	fi
+fi
+
 DISPVAL="$($CMD -d "$DEV" | sed -n 2p | awk '{print $4}' | tr -d '()')"
 
 if env | grep -q DISPLAY
 then
 	echo "$DISPVAL" > "$OUTPUTFILE"
-	echo "$DISPVAL" | tr -d "%" | xargs do_ob
+	if [ "$DOOB" -eq 1 ]
+	then
+		echo "$DISPVAL" | tr -d "%" | xargs do_ob
+	fi
 else
 	echo "$DISPVAL"
 fi
