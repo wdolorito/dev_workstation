@@ -70,7 +70,7 @@ then
 	then
 		do_error
 	fi
-	
+
 	if is_input_int "$1"
 	then
 		do_disp "$1"
