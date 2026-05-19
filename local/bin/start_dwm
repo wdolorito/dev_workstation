@@ -9,6 +9,8 @@ FEHBG="$HOME/.fehbg"
 BRIGHT="$(bright file 2>/dev/null)"
 LOCKER="$HOME/.screenlocker"
 OBSOCK="$(make_ob_sock)"
+_XDG_SESSION_TYPE="$XDG_SESSION_TYPE"
+XDG_SESSION_TYPE="x11"
 
 if [ -f "$DWMLOG" ]
 then
@@ -23,6 +25,7 @@ fi
 export OBSOCK
 ln -s "$HOME/.xinitrc-suckless" "$HOME/.xinitrc"
 startx
+XDG_SESSION_TYPE="$_XDG_SESSION_TYPE"
 
 if [ -f "$FEHBG" ]
 then
