@@ -59,24 +59,30 @@ is_input_int() {
 	printf %d "$1" >/dev/null 2>&1
 }
 
-if [ -z "$1" ]
-then
-	do_error
-fi
-
 if [ -z "$OB" ]
 then
 	do_error "\nxob not installed\n\n" 127
 fi
 
-if is_input_int "$1"
+if [ "$XDG_SESSION_TYPE" = "x11" ] || [ "$XDG_SESSION_TYPE" = "wayland" ]
 then
-	do_disp "$1"
-else
-	if [ "$1" = "clean" ]
+	if [ -z "$1" ]
 	then
-		final_clean
-	else
 		do_error
 	fi
+	
+	if is_input_int "$1"
+	then
+		do_disp "$1"
+	else
+		if [ "$1" = "clean" ]
+		then
+			final_clean
+		else
+			do_error
+		fi
+	fi
+else
+	echo "Not in graphical session."
+	exit 1
 fi
