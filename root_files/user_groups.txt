@@ -1,1 +1,1 @@
-dialout,cdrom,floppy,sudo,audio,dip,video,plugdev,users,netdev,input,bluetooth,libvirt
+adm,tty,dialout,cdrom,floppy,sudo,audio,dip,video,plugdev,users,netdev,input,kvm,bluetooth,libvirt
