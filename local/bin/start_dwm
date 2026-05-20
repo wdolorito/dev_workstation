@@ -8,7 +8,7 @@ DWMLOG="$HOME/.dwm.log"
 FEHBG="$HOME/.fehbg"
 BRIGHT="$(bright file 2>/dev/null)"
 LOCKER="$HOME/.screenlocker"
-OBSOCK="$(make_ob_sock)"
+OBSOCK="$(make_ob_sock 2>/dev/null)"
 _XDG_SESSION_TYPE="$XDG_SESSION_TYPE"
 XDG_SESSION_TYPE="x11"
 
@@ -19,12 +19,12 @@ fi
 
 if ! [ -d "$HOME/.local/.fpbin" ]
 then
-	gen_fpbins
+	gen_fpbins 2>/dev/null
 fi
 
 export OBSOCK
 ln -s "$HOME/.xinitrc-suckless" "$HOME/.xinitrc"
-startx
+startx 2>/dev/null
 XDG_SESSION_TYPE="$_XDG_SESSION_TYPE"
 
 if [ -f "$FEHBG" ]
@@ -51,8 +51,8 @@ fi
 
 if [ -p "$OBSOCK" ]
 then
-	make_ob_sock destroy
-	do_ob clean
+	make_ob_sock destroy 2>/dev/null
+	do_ob clean 2>/dev/null
 	unset OBSOCK
 fi
 
