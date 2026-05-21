@@ -4,17 +4,15 @@
 # ~/local/bin/screenshot
 #
 
-SCROT=""
-SLOP=""
-SSDIR=""
+SCROT="$(which scrot 2>/dev/null)"
+SLOP="$(which slop 2>/dev/null)"
+SSDIR="$HOME/Pictures/screenshot"
 
-if ! env | grep DISPLAY >/dev/null
+if ! [ "$XDG_SESSION_TYPE" = "x11" ]
 then
 	echo "not in X session"
 	exit 1
 fi
-
-SCROT="$(which scrot 2>/dev/null)"
 
 if [ -z "$SCROT" ]
 then
@@ -22,15 +20,11 @@ then
 	exit 127
 fi
 
-SLOP="$(which slop 2>/dev/null)"
-
 if [ -z "$SLOP" ]
 then
 	echo "slop utility not available"
 	exit 127
 fi
-
-SSDIR="$HOME/Pictures/screenshot"
 
 if ! [ -d "$SSDIR" ]
 then
@@ -42,7 +36,7 @@ do_fullscreen() {
 }
 
 do_crop() {
-	$SCROT -a $($SLOP -f '%x,%y,%w,%h') -F "$SSDIR/crop-$(date '+%F_%H.%M.%S').png"
+	$SCROT -a "$($SLOP -f '%x,%y,%w,%h')" -F "$SSDIR/crop-$(date '+%F_%H.%M.%S').png"
 }
 
 
