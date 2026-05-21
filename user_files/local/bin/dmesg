@@ -4,17 +4,13 @@
 # ~/local/bin/dmesg
 #
 
-DMESG="$(which /usr/bin/dmesg 2>/dev/null)"
-DOAS="$(which doas 2>/dev/null)"
+DMESG="dmesg"
+SUDO="$(which sudo 2>/dev/null)"
 
-if [ -z "$DOAS" ]
+if [ -z "$SUDO" ]
 then
-	exit 1
-fi
-
-if [ -z "$DMESG" ]
-then
+	echo "sudo command not available."
 	exit 127
+else
+	$SUDO "$DMESG"
 fi
-
-$DOAS "$DMESG"
