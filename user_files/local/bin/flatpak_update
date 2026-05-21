@@ -7,7 +7,7 @@
 FLATPAK="$(which flatpak 2>/dev/null)"
 
 do_error() {
-	printf "\nPlease install flatpak utility\n\n"
+	echo "flatpak command not available."
 	exit 127
 }
 
@@ -18,9 +18,9 @@ do_update() {
 	$FLATPAK --user -y uninstall --delete-data
 }
 
-if [ -z "$FLATPAK" ]
+if [ -n "$FLATPAK" ]
 then
+	do_update
+else
 	do_error
 fi
-
-do_update
