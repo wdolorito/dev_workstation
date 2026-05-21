@@ -1,9 +1,10 @@
 #
-# ~/.logout
+# ~/.mksh_logout
 #
 
 if [ -z "$TMUX" ] && [ "$XDG_SESSION_TYPE" = "tty" ] && [ "$(loginctl list-sessions | grep -c "$(whoami)")" -eq 1 ]
 then
+	# kill ssh-agents
 	if [ -S "$SSH_AUTH_SOCK" ]
 	then
 		for AGENT in $(pgrep ssh-agent)
@@ -13,4 +14,7 @@ then
 
 		rm -f "$SSH_AUTH_SOCK"
 	fi
+
+	# kill pipewire
+	$(which start_audio 2>/dev/null) kill 2>/dev/null
 fi
