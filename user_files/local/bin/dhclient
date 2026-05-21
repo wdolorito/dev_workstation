@@ -4,17 +4,13 @@
 # ~/local/bin/dhclient
 #
 
-DHCLIENT="$(which /usr/sbin/dhclient 2>/dev/null)"
-DOAS="$(which doas 2>/dev/null)"
+DHCLIENT="dhclient"
+SUDO="$(which sudo 2>/dev/null)"
 
-if [ -z "$DOAS" ]
+if [ -n "$SUDO" ]
 then
-	exit 1
-fi
-
-if [ -z "$DHCLIENT" ]
-then
+	$SUDO "$DHCLIENT" "$@"
+else
+	echo "sudo command not available."
 	exit 127
 fi
-
-$DOAS "$DHCLIENT" "$@"
