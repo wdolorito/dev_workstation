@@ -7,7 +7,6 @@
 DWMLOG="$HOME/.dwm.log"
 FEHBG="$HOME/.fehbg"
 BRIGHT="$(bright file 2>/dev/null)"
-LOCKER="$HOME/.screenlocker"
 OBSOCK="$(make_ob_sock 2>/dev/null)"
 _XDG_SESSION_TYPE="$XDG_SESSION_TYPE"
 XDG_SESSION_TYPE="x11"
@@ -44,10 +43,7 @@ then
 	rm -f "$BRIGHT"
 fi
 
-if [ -f "$LOCKER" ]
-then
-	rm -f "$LOCKER"
-fi
+toggle_lock clean 2>/dev/null
 
 if [ -p "$OBSOCK" ]
 then
