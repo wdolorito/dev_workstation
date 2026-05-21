@@ -1,0 +1,16 @@
+#
+# ~/.logout
+#
+
+if [ -z "$TMUX" ] && [ "$XDG_SESSION_TYPE" = "tty" ] && [ "$(loginctl list-sessions | grep -c "$(whoami)")" -eq 1 ]
+then
+	if [ -S "$SSH_AUTH_SOCK" ]
+	then
+		for AGENT in $(pgrep ssh-agent)
+		do
+			kill -TERM "$AGENT"
+		done
+
+		rm -f "$SSH_AUTH_SOCK"
+	fi
+fi
