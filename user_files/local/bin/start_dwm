@@ -6,6 +6,7 @@
 
 DWMLOG="$HOME/.dwm.log"
 FEHBG="$HOME/.fehbg"
+GTK_THEME="Adwaita:dark"
 BRIGHT="$(bright file 2>/dev/null)"
 OBSOCK="$(make_ob_sock 2>/dev/null)"
 _XDG_SESSION_TYPE="$XDG_SESSION_TYPE"
@@ -21,8 +22,9 @@ then
 	gen_fpbins 2>/dev/null
 fi
 
+export GTK_THEME
 export OBSOCK
-ln -s "$HOME/.xinitrc-suckless" "$HOME/.xinitrc"
+ln -sf "$HOME/.xinitrc-suckless" "$HOME/.xinitrc"
 startx 2>/dev/null
 XDG_SESSION_TYPE="$_XDG_SESSION_TYPE"
 
@@ -44,6 +46,8 @@ then
 fi
 
 toggle_lock clean 2>/dev/null
+
+unset GTK_THEME
 
 if [ -p "$OBSOCK" ]
 then
