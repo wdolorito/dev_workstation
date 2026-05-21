@@ -4,21 +4,15 @@
 # ~/local/bin/hibernate
 #
 
-CMD=""
-LOCK="lock_screen"
+CMD="hibernate"
+LOCK="$(which lock_screen 2>/dev/null)"
 LOGINCTL="$(which loginctl 2>/dev/null)"
 
-if [ -z "$LOGINCTL" ]
+if [ -n "$LOGINCTL" ]
 then
+	$LOGINCTL "$CMD"
+	$LOCK 2>/dev/null
+else
+	echo "loginctl command not available."
 	exit 127
 fi
-
-CMD="$LOGINCTL hibernate"
-
-if ! $CMD
-then
-	printf "\nunable to run \"%s\"\n\n" "$CMD"
-	exit 127
-fi
-
-$LOCK
