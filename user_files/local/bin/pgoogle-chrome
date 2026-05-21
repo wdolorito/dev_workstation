@@ -6,9 +6,10 @@
 
 CMD="$(which google-chrome 2>/dev/null)"
 
-if [ -z "$CMD" ]
+if [ -n "$CMD" ]
 then
-    exit 127
+	$CMD --incognito "$@"
+else
+	echo "google-chrome command not available."
+	exit 127
 fi
-
-$CMD --incognito "$@"
