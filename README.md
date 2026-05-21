@@ -12,22 +12,23 @@ Different from the other set of instructions, this one ditches all wayland relat
 There is really no reason why these instructions exist, just that it could be done.  What's actually nice is that KiCad won't be a problem to install from flathub (unlaunchable without Xwayland support).  What's not that nice is that unprivileged containers don't work as expected without systemd, requiring to be run as root.  I'm sure there's a solution to that, since it works perfectly well under Debian, but I honestly haven't looked too deep in to it since I can just take a few seconds to boot Debian if I need a user container for a development DB for instance.  Or just use the containers I set up on my Debian server on my local network.
 
 That all said, I really do love the not jumping over the hoops and hurdles using pure wayland.  Which, to the project's credit, are becoming fewer and far between.  It also brings me back to my earliest days of linux use futzing with sysvinit scripts to get things to run and messing with xorg files to get a graphical desktop.  In short, everything works (for me), and it was fun setting all this up.
+
 ## start with basic excalibur netinstall (https://www.devuan.org/get-devuan)
 ### install packages
 #### as root:
 ```
-grep ^# -v packages | sed '/^s*$/d' | xargs apt install
-cp <path to repo>/root_files/30-touchpad.conf /etc/X11/xorg.conf.d
-cp <path to repo>/root_files/doas.conf /etc
 cp <path to repo>/root_files/sources.list /etc/apt
 apt-get update
 apt-get -y dist-upgrade
+grep ^# -v packages | sed '/^s*$/d' | xargs apt -y install
 apt-get -y autoremove --purge
 apt-get -y autoclean
 apt-get -y clean
 dpkg -l | grep ^rc | awk '{print $2}' | xargs apt-get purge -y
 apt-get purge sudo
 apt-get purge wpasupplicant
+cp <path to repo>/root_files/30-touchpad.conf /etc/X11/xorg.conf.d
+cp <path to repo>/root_files/doas.conf /etc
 ```
 * check ```pacakges``` file for additional comments/directions
 * after adding a user (```adduser/useradd```), add user to basic groups
@@ -61,6 +62,7 @@ iface eth0 inet dhcp
 * if wired interface is not present at boot, prepare to wait until timeout
 * ```iwd``` service starts after ```networking``` service during boot
 * do not add wireless interface definition for this reason
+
 ### setup user paths + login
 #### as user:
 ##### *optional*:
@@ -68,21 +70,24 @@ To use ```mksh``` as default shell:
 ```
 chsh <enter password and enter '/bin/mksh' when prompted>
 cp /etc/skel/.mkshrc "$HOME"
+cp -r <path to repo>/user_files/dots/.mksh_logout "$HOME"
 ```
 ```
 cd # switch to home directory
 for patch in <path to repo>/user_files/*.patch ; do patch < "$patch" ; done
-cp -r <path to repo>/dots/.config ~/
-cp -r <path to repo>/dots/.ssh ~/
-cp <path to repo>/dots/.fbtermrc ~/
-cp <path to repo>/dots/.gitconfig ~/
-cp <path to repo>/dots/.xinitrc ~/
-cp <path to repo>/local ~/
-cp <path to repo>/suckless ~/.local
+cp -r <path to repo>/user_files/dots/.config ~/
+cp -r <path to repo>/user_files/dots/.ssh ~/
+cp <path to repo>/user_files/dots/.fbtermrc ~/
+cp <path to repo>/user_files/dots/.gitconfig ~/
+cp <path to repo>/user_files/dots/.xinitrc-suckless ~/
+cp -r <path to repo>/user_files/local ~/
+cp -r <path to repo>/suckless ~/.local
 ```
+
 * edit ```~/.gitconfig``` with personal information
 * create user ssh keys per instructions in ```~/.ssh/config```
 * log out, log back in and continue
+
 ### setup flatpak apps
 ```
 flatpak --user remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
@@ -93,14 +98,6 @@ flatpak --user remote-add --if-not-exists flathub-beta https://flathub.org/beta-
 ```
 for app in $(cat flatpak_apps.txt) ; do flatpak install flathub -y --noninteractive "$app" ; done
 ```
-* when prompted for extensions (llvm, node), install runtime used by codium
-```
-flatpak info com.vscodium.codium | grep Runtime | awk -F / '{print $(NF)}'
-```
-* when prompted for openjdk extension, install runtime used by netbeans
-```
-flatpak info org.apache.netbeans | grep Runtime | awk -F / '{print $(NF)}'
-```
 * dark mode
 ```
 flatpak --user override --env="GTK_THEME=Adwaita:dark"
@@ -110,21 +107,13 @@ gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 ### codium setup
 ```
 for extension in $(cat codium_extensions.txt) ; do codium --install-extension "$extension" ; done
-flatpak --user override --env="FLATPAK_ENABLE_SDK_EXT=llvm20,node24" com.vscodium.codium
 ```
+
 #### additional codium setup
 * start codium
 * enter settings
 * search 'default profile'
 * change to 'bash'
-* search 'ttyusb'
-* change to /dev/ttyUSB0
-
-### netbeans setup
-```
-flatpak --user override --env="FLATPAK_ENABLE_SDK_EXT=openjdk21" org.apache.netbeans
-flatpak --user override --env="_JAVA_AWT_WM_NONREPARENTING=1" org.apache.netbeans
-```
 
 ### misc utils
 * toggle screenlocker on and off
