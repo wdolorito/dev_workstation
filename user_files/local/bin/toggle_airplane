@@ -4,19 +4,19 @@
 # ~/local/bin/toggle_airplane
 #
 
-RFKILL="$(which /sbin/rfkill)"
-DHCLIENT=""
-STATUS=""
+RFKILL="$(which /sbin/rfkill 2>/dev/null)"
+DHCLIENT="$(which dhclient 2>/dev/null)"
+STATUS="$($RFKILL 2>/dev/null | grep wlan | awk '{print $4}')"
 
 if [ -z "$RFKILL" ]
 then
+	echo "rfkill command not available."
 	exit 127
 fi
 
-DHCLIENT="$(which dhclient)"
-
 if [ -z "$DHCLIENT" ]
 then
+	echo "dhclient command not available."
 	exit 127
 fi
 
@@ -29,8 +29,6 @@ enable_wireless() {
 	$RFKILL unblock all >/dev/null 2>&1
 	$DHCLIENT >/dev/null 2>&1
 }
-
-STATUS="$($RFKILL | grep wlan | awk '{print $4}')"
 
 toggle() {
 	if [ "$STATUS" = "unblocked" ]
