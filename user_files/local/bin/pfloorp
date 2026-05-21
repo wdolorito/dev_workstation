@@ -8,9 +8,8 @@ CMD="$(which floorp 2>/dev/null)"
 
 if [ -n "$CMD" ]
 then
-    $CMD --private-window "$@"
+	$CMD --private-window "$@"
 else
-    echo "floorp command not available."
-    exit 127
+	echo "floorp command not available."
+	exit 127
 fi
-
