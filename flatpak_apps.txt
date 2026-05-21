@@ -17,5 +17,4 @@ org.horizon_eda.HorizonEDA
 org.inkscape.Inkscape
 org.kicad.KiCad
 org.libreoffice.LibreOffice
-org.openscad.OpenSCAD
 uk.org.greenend.chiark.sgtatham.puzzles
