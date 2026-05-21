@@ -1,25 +1,27 @@
-+++ .bash_logout	2026-05-17 12:21:22.255296719 -0600
-***************
-*** 1,5 ****
---- 1,21 ----
-  # ~/.bash_logout: executed by bash(1) when login shell exits.
-  
-+ if [ "$(loginctl list-sessions | grep -c "$(whoami)")" -eq 2 ]
-+ then
-+ 	if [ -S "$SSH_AUTH_SOCK" ]
-+ 	then
-+ 		if [ -z "$TMUX" ]
-+ 		then
-+ 			for AGENT in $(pgrep ssh-agent)
-+ 				do
-+ 					kill -TERM "$AGENT"
-+ 				done
-+ 
-+ 				rm -f "$SSH_AUTH_SOCK"
-+ 		fi
-+ 	fi
-+ fi
-+ 
-  # when leaving the console clear the screen to increase privacy
-  
-  if [ "$SHLVL" = 1 ]; then
++++ .bash_logout	2026-05-21 15:10:26.039595783 -0600
+@@ -1,5 +1,25 @@
+ # ~/.bash_logout: executed by bash(1) when login shell exits.
+ 
++if [ "$(loginctl list-sessions | grep -c "$(whoami)")" -eq 2 ]
++then
++	# kill ssh-agent
++	if [ -S "$SSH_AUTH_SOCK" ]
++	then
++		if [ -z "$TMUX" ]
++		then
++			for AGENT in $(pgrep ssh-agent)
++				do
++					kill -TERM "$AGENT"
++				done
++
++				rm -f "$SSH_AUTH_SOCK"
++		fi
++	fi
++
++	# kill pipewire
++	$(which start_audio 2>/dev/null) kill 2>/dev/null
++fi
++
+ # when leaving the console clear the screen to increase privacy
+ 
+ if [ "$SHLVL" = 1 ]; then
