@@ -54,6 +54,7 @@ case "$1" in
 		;;
 	"mic" )
 		vol_mic
+		exit
 		;;
 	* )
 		DOOB=0
