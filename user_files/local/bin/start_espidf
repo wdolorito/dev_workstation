@@ -7,37 +7,115 @@
 unset HISTFILE
 
 REPO="https://github.com/espressif/esp-idf.git"
-BASEIDFPATH="$HOME/esp"
+BASEIDFPATH="$HOME/projects/esp"
 ESPIDFPATH="$BASEIDFPATH/esp-idf"
-ESPRELEASE="release/v5.5"
+IDF_TOOLS_PATH="$HOME/.espressif" ; export IDF_TOOLS_PATH
+ESPBRANCH="release/v5.5"
+ESPRELEASE="v5.5.4"
 ESPTARGET="esp32"
 CWD="$(pwd)"
+
+GLIBC="$(ls /lib/*gnu*/libc.so.* 2>/dev/null)"
+
+if [ -z "$GLIBC" ]
+then
+	echo "Unsupported libc."
+	exit 1
+fi
+
+GIT="$(which git 2>/dev/null)"
+PYTHON="$(which python3 2>/dev/null)"
+LIBUSB="$(find /usr/lib -type f -name 'libusb-1.0.so*' -type f 2>/dev/null)"
+VENVEXISTSFN="$IDF_TOOLS_PATH/.espidfvenvexists"
+CMAKE="$(which cmake 2>/dev/null)"
+
+ERRMSG=""
+
+if [ -z "$GIT" ]
+then
+	ERRMSG+="git not available.\n"
+fi
+
+test_venv() {
+	TENV="$(mktemp -d 2>/dev/null)"
+	PYTHONVENV=""
+	if [ -d "$TENV" ]
+	then
+		$PYTHON -m venv "$TENV" >/dev/null 2>&1
+		PYTHONVENV="$?"
+		if [ "$PYTHONVENV" -ne 0 ]
+		then
+			ERRMSG+="Python3 venv module not available.\n"
+		else
+			if ! [ -d "$IDF_TOOLS_PATH" ]
+			then
+				mkdir -p "$IDF_TOOLS_PATH"
+			fi
+			touch "$VENVEXISTSFN"
+		fi
+	else
+		ERRMSG+="mktemp utility not available.\n"
+	fi
+	rm -rf "$TENV"
+}
+
+if [ -z "$PYTHON" ]
+then
+	ERRMSG+="Python3 not available.\n"
+else
+	if ! [ -f "$VENVEXISTSFN" ]
+	then
+		test_venv
+	fi
+fi
+
+if [ -z "$LIBUSB" ]
+then
+	ERRMSG+="libusb 1.0 not available.\n"
+fi
+
+if [ -z "$CMAKE" ]
+then
+	ERRMSG+="cmake not available.\n"
+fi
+
+if [ -n "$ERRMSG" ]
+then
+	printf "%b" "$ERRMSG"
+	exit 127
+fi
 
 download_tools() {
 	if ! [ -d "$ESPIDFPATH" ]
 	then
-		cd "$BASEIDFPATH"
+		if ! [ -d "$BASEIDFPATH" ]
+		then
+			mkdir -p "$BASEIDFPATH"
+		fi
+		cd "$BASEIDFPATH" || exit
 		git clone --recursive "$REPO"
-	fi
-}
-
-update_espidf() {
-	if [ -d "$ESPIDFPATH" ]
-	then
-		cd "$ESPIDFPATH"
-		git reset --hard
-		git checkout master
-		git pull
-		git checkout "$ESPRELEASE"
 	fi
 }
 
 clean_src() {
 	if [ -d "$ESPIDFPATH" ]
 	then
-		cd "$ESPIDFPATH"
-		rm -rf *
+		cd "$ESPIDFPATH" || exit
+		rm -rf ./*
 		printf "\n%s cleaned.\n" "$ESPIDFPATH"
+	fi
+}
+
+update_espidf() {
+	if [ -d "$ESPIDFPATH" ]
+	then
+		clean_src
+		git checkout -q master
+		git reset --hard
+		git fetch --tag
+		git pull
+		git checkout "$ESPRELEASE"
+		git submodule update --recursive
 	fi
 }
 
@@ -50,9 +128,13 @@ remove_src() {
 }
 
 clean_espressif() {
-	cd "$HOME/.espressif" || exit
-	rm -rf *
-	printf "\n%s cleaned.\n" "$HOME/.espressif"
+	if [ -d "$IDF_TOOLS_PATH" ]
+	then
+		cd "$IDF_TOOLS_PATH" || exit
+		rm -rf ./*
+		rm -f "$VENVEXISTSFN"
+		printf "\n%s cleaned.\n" "$HOME/.espressif"
+	fi
 }
 
 clean_all() {
@@ -63,25 +145,40 @@ clean_all() {
 install_espidf() {
 	if [ -d "$ESPIDFPATH" ]
 	then
-		cd "$ESPIDFPATH"
+		cd "$ESPIDFPATH" || exit
 		./install.sh "$ESPTARGET"
 	fi
+}
+
+choose_branch() {
+	BASEVER="$(echo "$ESPBRANCH" | cut -d '/' -f 2-)"
+	mapfile -t CHOICES < <(git tag -l | grep "$BASEVER")
+	count=0
+	for choice in "${CHOICES[@]}"
+	do
+		printf "%3d\t%s\n" "$count" "$choice"
+		count="$((count + 1))"
+	done
+	printf "\n"
+	read -r OPTION
+	ESPRELEASE="${CHOICES[$OPTION]}"
 }
 
 choose_release() {
 	if [ -d "$ESPIDFPATH" ]
 	then
 		cd "$ESPIDFPATH" || exit
-		mapfile -t CHOICES < <(git branch -r | cut -d '/' -f 2- | grep -v HEAD -)
+		mapfile -t CHOICES < <(git branch -r | grep release | cut -d '/' -f 2-)
 		count=0
 		for choice in "${CHOICES[@]}"
 		do
 			printf "%3d\t%s\n" "$count" "$choice"
-			count="$(($count + 1))"
+			count="$((count + 1))"
 		done
 		printf "\n"
-		read OPTION
-		ESPRELEASE="${CHOICES[$OPTION]}"
+		read -r OPTION
+		ESPBRANCH="${CHOICES[$OPTION]}"
+		choose_branch
 	else
 		echo "Tools not available."
 		echo "Download repo first."
@@ -89,14 +186,39 @@ choose_release() {
 	fi
 }
 
+do_shell() {
+	BSH="$(which bash)"
+	if ! [ "$SHELL" = "$BSH" ]
+	then
+		SHELL="$BSH"
+		export SHELL
+		BRC="$HOME/.bashrc"
+		if ! [ -f "$BRC" ]
+		then
+			echo "alias ls='ls --color=auto'" >> "$BRC"
+			echo "PS1='\[\e[1;33m\]\u:\[\e[1;36m\]\w \[\e[0m\]$ ' ; export PS1" >> "$BRC"
+		else
+			PS1='\[\e[1;33m\]\u:\[\e[1;36m\]\w \[\e[0m\]$ ' ; export PS1
+		fi
+	fi
+
+	cd "$ESPIDFPATH" || exit
+	# shellcheck disable=SC2063
+	ESPVER="$(git branch | grep ^\* | tr -d '()' | awk '{print $5}' )" ; export ESPVER
+	cd "$CWD" || exit
+
+	# shellcheck disable=SC2016,SC2028
+	exec bash --rcfile <(cat ~/.bashrc; echo 'PS1="\n>> \e[0;36mesp-idf ${ESPVER} \e[0;31mactive\e[0m <<\n${PS1}"')
+}
+
 export_espidf() {
 	if [ -d "$ESPIDFPATH" ]
 	then
-		cd "$ESPIDFPATH"
+		cd "$ESPIDFPATH" || exit
+		# shellcheck source=/dev/null
 		source export.sh
-		cd "$CWD"
-		export SHELL="$(which bash)"
-		exec bash
+		cd "$CWD" || exit
+		do_shell
 	else
 		echo "Failed to set up environment."
 		exit 1
