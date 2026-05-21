@@ -4,71 +4,62 @@
 # ~/local/bin/floorp
 #
 
-CMD="/usr/bin/floorp"
 FLATPAK="$(which flatpak 2>/dev/null)"
-FLATPAKERRMSG=""
+INSTALLED=""
 PKG="one.ablaze.floorp"
+TOTMP="$(which browser_profile_to_tmpfs 2>/dev/null)"
 PDATA="$HOME/.floorp"
 PTEMPFILE="$HOME/.flrun"
 
-do_error() {
-	printf "\ninstall a package that supplies \"%s\"\n" "$CMD"
-
-	if [ -n "$FLATPAKERRMSG" ]
-	then
-		printf "%s\n\n" "$FLATPAKERRMSG"
-	else
-		printf "\n"
-	fi
-
-	exit 127
+launch() {
+	case "$XDG_SESSION_TYPE" in
+		"wayland" | "x11")
+			$FLATPAK run "$PKG" "$@"
+			;;
+		* )
+			echo "Not in a graphical session."
+			exit 1
+			;;
+	esac
 }
 
-launch_program() {
-	if ! $CMD "$@" 2>/dev/null
-	then
-		do_error
-	fi
+check_temp() {
+	case "$1" in
+		"clean" )
+			$TOTMP clean "$PDATA" "$PTEMPFILE"
+			;;
+		"copy" )
+			$TOTMP  copy "$PDATA" "$PTEMPFILE"
+			;;
+		"recover" )
+			$TOTMP  recover "$PDATA" "$PTEMPFILE"
+			;;
+		"sync" )
+			$TOTMP  sync "$PDATA" "$PTEMPFILE"
+			;;
+		* )
+			launch "$@"
+			;;
+	esac
 }
 
-default() {
-	if ! env | grep -q DISPLAY
-	then
-		printf "\nNot in a graphical session\n\n"
-		exit 1
-	else
-		launch_program "$@"
-	fi
-
-}
-
-if ! [ -x "$CMD" ]
+if [ -z "$FLATPAK" ]
 then
-	if [ -n "$FLATPAK" ]
+	echo "flatpak command not available."
+	exit 127
+else
+	INSTALLED="$($FLATPAK list | grep $PKG)"
+
+	if [ -n "$INSTALLED" ]
 	then
-		if $FLATPAK list | grep -q "$PKG"
+		if [ -n "$TOTMP" ]
 		then
-			CMD="$FLATPAK run $PKG"
+			check_temp "$@"
 		else
-			FLATPAKERRMSG="or install from flatpak repo with \"$FLATPAK install $PKG\""
+			launch "$@"
 		fi
+	else
+		echo "floorp flatpak not installed."
+		exit 127
 	fi
 fi
-
-case "$1" in
-	"copy" )
-		browser_profile_to_tmpfs copy "$PDATA" "$PTEMPFILE"
-		;;
-	"clean" )
-		browser_profile_to_tmpfs clean "$PDATA" "$PTEMPFILE"
-		;;
-	"recover" )
-		browser_profile_to_tmpfs recover "$PDATA" "$PTEMPFILE"
-		;;
-	"sync" )
-		browser_profile_to_tmpfs sync "$PDATA" "$PTEMPFILE"
-		;;
-	* )
-		default "$@"
-		;;
-esac
