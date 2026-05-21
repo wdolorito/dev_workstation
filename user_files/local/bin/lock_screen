@@ -5,11 +5,18 @@
 #
 
 PHYSLOCK="$(which physlock 2>/dev/null)"
+LOCK="$(which lock_msg 2>/dev/null)"
+MSG="$(printf "%s locked this workstation named %s" "$(whoami)" "$(hostname)")"
 
-if [ -z "$PHYSLOCK" ]
+if [ -n "$LOCK" ]
 then
+	MSG="$($LOCK)"
+fi
+
+if [ -n "$PHYSLOCK" ]
+then
+	$PHYSLOCK -dmsp "$MSG"
+else
 	echo "physlock command not available."
 	exit 127
 fi
-
-$PHYSLOCK -dmsp "$(lock_msg)"
