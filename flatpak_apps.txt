@@ -13,7 +13,6 @@ org.gnome.Aisleriot
 org.gnome.Characters
 org.gnome.font-viewer
 org.gnome.gitlab.somas.Apostrophe
-org.horizon_eda.HorizonEDA
 org.inkscape.Inkscape
 org.kicad.KiCad
 org.libreoffice.LibreOffice
