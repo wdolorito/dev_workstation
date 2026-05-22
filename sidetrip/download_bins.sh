@@ -1,11 +1,14 @@
 #!/bin/sh
 
+ARCHIVES="$(pwd)/archives"
 CURL="$(which curl 2>/dev/null)"
 KERN="$(uname -s)"
 LOWERKERN="$(echo "$KERN" | tr '[:upper:]' '[:lower:]')"
 MACHRAW="$(uname -m)"
 MACH="$MACHRAW"
-ARCHIVES="$(pwd)/archives"
+BWD="$(pwd)"
+PROGS="$BWD/dev_progs"
+SRC="$BWD/src"
 CLVOJDK=""
 CLVNODE=""
 CLVVAGRANT=""
@@ -13,6 +16,8 @@ CLVLLVM=""
 CLVNINJA=""
 CLVCMAKE=""
 CLVPYTHON=""
+TAR="$(which tar 2>/dev/null)"
+ZIP="$(which 7z 2>/dev/null)"
 
 if [ -z "$CURL" ]
 then
@@ -30,6 +35,20 @@ then
 	mkdir -p "$ARCHIVES"
 fi
 
+test_progs_dir() {
+	if ! [ -d "$PROGS" ]
+	then
+		mkdir -p "$PROGS"
+	fi
+}
+
+test_src_dir() {
+	if ! [ -d "$SRC" ]
+	then
+		mkdir -p "$SRC"
+	fi
+}
+
 download_openjdk() {
 	LATESTLTS="$($CURL -s 'https://api.adoptium.net/v3/info/available_releases' | grep most_recent_lts | cut -d: -f2 | tr -d ",|[:space:]")"
 	LINK="$($CURL -s "https://api.adoptium.net/v3/assets/latest/$LATESTLTS/hotspot?architecture=$MACH&os=$LOWERKERN" | grep \"link | grep "jdk_$MACH" | cut -d: -f2- | tr -d ",|[:space:]|\"")"
@@ -41,6 +60,17 @@ download_openjdk() {
 	else
 		echo "Downloading openjdk..."
 		$CURL -L -o "$CLVOJDK" "$LINK"
+	fi
+}
+
+unpack_openjdk() {
+	if [ -n "$TAR" ]
+	then
+		echo "unpacking openjdk to" "$PROGS" "..."
+		$TAR xf "$CLVOJDK"  --strip-components=1 -C "$PROGS"
+	else
+		echo "tar command not available."
+		exit 127
 	fi
 }
 
@@ -59,6 +89,17 @@ download_node() {
 	fi
 }
 
+unpack_node() {
+	if [ -n "$TAR" ]
+	then
+		echo "unpacking node to" "$PROGS" "..."
+		$TAR xf "$CLVNODE"  --strip-components=1 -C "$PROGS"
+	else
+		echo "tar command not available."
+		exit 127
+	fi
+}
+
 download_vagrant() {
 	URL="https://releases.hashicorp.com"
 	LATEST="$($CURL -s "$URL/vagrant/" | grep vagrant_ | head -n1 | awk -F\" '{print $2}')"
@@ -71,6 +112,17 @@ download_vagrant() {
 	else
 		echo "Downloading vagrant..."
 		$CURL -L -o "$CLVVAGRANT" "$LINK"
+	fi
+}
+
+unpack_vagrant() {
+	if [ -n "$ZIP" ]
+	then
+		echo "unpacking vagrant to" "$PROGS/bin" "..."
+		7z x "$CLVVAGRANT"  -o"$PROGS"/bin
+	else
+		echo "zip command not available."
+		exit 127
 	fi
 }
 
@@ -87,6 +139,17 @@ download_llvm() {
 	fi
 }
 
+unpack_llvm() {
+	if [ -n "$TAR" ]
+	then
+		echo "unpacking llvm to" "$PROGS" "..."
+		$TAR xf "$CLVLLVM"  --strip-components=1 -C "$PROGS"
+	else
+		echo "tar command not available."
+		exit 127
+	fi
+}
+
 download_ninja() {
 	LATEST="$($CURL -s "https://api.github.com/repos/ninja-build/ninja/releases/latest" | grep browser | grep "$LOWERKERN\.zip" | cut -d":" -f2- | tr -d "\"|[:space:]")"
 	FILE="$(basename "$LATEST")"
@@ -100,6 +163,17 @@ download_ninja() {
 	fi
 }
 
+unpack_ninja() {
+	if [ -n "$ZIP" ]
+	then
+		echo "unpacking ninja to" "$PROGS/bin" "..."
+		7z x "$CLVNINJA"  -o"$PROGS"/bin
+	else
+		echo "zip command not available."
+		exit 127
+	fi
+}
+
 download_cmake() {
 	LATEST="$($CURL -s "https://api.github.com/repos/Kitware/CMake/releases/latest" | grep browser | grep tar | grep "$MACHRAW" | grep "$LOWERKERN" | cut -d":" -f2- | tr -d "\"|[:space:]")"
 	FILE="$(basename "$LATEST")"
@@ -110,6 +184,17 @@ download_cmake() {
 	else
 		echo "Downloading cmake..."
 		$CURL -L -o "$CLVCMAKE" "$LATEST"
+	fi
+}
+
+unpack_cmake() {
+	if [ -n "$TAR" ]
+	then
+		echo "unpacking cmake to" "$PROGS" "..."
+		$TAR xf "$CLVCMAKE"  --strip-components=1 -C "$PROGS"
+	else
+		echo "tar command not available."
+		exit 127
 	fi
 }
 
@@ -127,6 +212,28 @@ download_python() {
 	fi
 }
 
+unpack_python() {
+	if [ -n "$TAR" ]
+	then
+		echo "unpacking python to" "$SRC" "..."
+		$TAR xf "$CLVPYTHON"  -C "$SRC"
+	else
+		echo "tar command not available."
+		exit 127
+	fi
+}
+
+compile_python() {
+	echo "compiling python..."
+	PATH="$PROGS/bin:$PATH"
+	SRCDIR="$SRC/$(basename $CLVPYTHON | rev | cut -d. -f3- | rev)"
+	cd "$SRCDIR" || exit
+	make clean
+	CC=clang AR=llvm-ar LDFLAGS=-fuse-ld=lld ./configure --enable-optimizations --prefix="$PROGS"
+	make -j "$(cat /proc/cpuinfo | grep -c proc)"
+	make install
+}
+
 download_openjdk
 download_node
 download_vagrant
@@ -134,3 +241,16 @@ download_llvm
 download_ninja
 download_cmake
 download_python
+
+test_progs_dir
+unpack_openjdk
+unpack_node
+unpack_vagrant
+unpack_llvm
+unpack_ninja
+unpack_cmake
+
+test_src_dir
+unpack_python
+
+compile_python
