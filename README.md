@@ -148,3 +148,6 @@ start_dwm
 
 ### bookmarks
 * import bookmarks from ```user_files/bookmarks-devuan.json``` in to floorp (ctl-shift-o, Import and Backup, Restore, Choose File)
+
+## bonus prebuilt
+* ```download_bins.sh``` will download prebuilt binary distributions of openjdk, nodejs, vagrant, llvm, ninja and cmake.  It will also compile python using these downloaded binaries and install these tools to the ```$BWD``` directory specified within itself.  The default installation directory is the current directory it is called from.  This script is inherently brittle depending on the output of the locations written in the ```links``` file.  That file contains very sparse notes and examples of tool packages.
