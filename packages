@@ -53,15 +53,21 @@ fonts-recommended
 fonts-inconsolata
 fonts-font-awesome
 
+# suckless
 xinit
 xss-lock
 dunst
 gnome-themes-extra
 libnotify-bin
 feh
-libconfig-dev
-libxft-dev
-libxinerama-dev
 picom
 scrot
 slop
+make
+libc6-dev
+libx11-dev
+libxft-dev
+libxinerama-dev
+libgcc-14-dev
+libconfig-dev
+# end suckless
