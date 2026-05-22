@@ -1,0 +1,38 @@
+openjdk
+https://adoptium.net/download?link=https%3A%2F%2Fgithub.com%2Fadoptium%2Ftemurin25-binaries%2Freleases%2Fdownload%2Fjdk-25.0.2%252B10%2FOpenJDK25U-jdk_x64_linux_hotspot_25.0.2_10.tar.gz&vendor=Adoptium
+# https://api.adoptium.net/q/swagger-ui/
+# latest lts curl "https://api.adoptium.net/v3/info/available_releases" | grep most_recent_lts
+# latest curl 'https://api.adoptium.net/v3/assets/latest/${latest lts}/hotspot?architecture=$(uname -m)&os=$(echo $(uname -s) | tr [:upper:] [:lower:])' | grep "\"link" | grep jdk_x64
+# latest curl 'https://api.adoptium.net/v3/assets/latest/25/hotspot?architecture=x64&os=linux' | grep "\"link" | grep jdk_x64
+
+
+node
+https://nodejs.org/dist/v24.14.0/node-v24.14.0-linux-x64.tar.xz
+# kernel $(echo uname -s) | tr '[:upper:]' '[:lower:]'
+# arch $(uname -m) x86_64 => x64
+# curl "https:///nodejs.org/dist/" | grep "latest-v" | cut -d"=" -f2 | cut -d">" -f1 | tr -d \"/
+# eg. curl "https://nodejs.org/dist/latest-v24.x/" | grep node | grep xz | grep "$(echo "$(uname -s)" | tr [:upper:] [:lower:])"
+
+vagrant
+https://releases.hashicorp.com/vagrant/2.4.9/vagrant_2.4.9_linux_amd64.zip
+# url: https://releases.hashicorp.com/vagrant/
+# latest endpoint: curl "$url" | grep vagrant_ | head -n1 | awk -F\" '{print $2}'
+# latest curl $url/$endpoint | grep "$(echo "$(uname -s)" | tr [:upper:] [:lower:])" | grep zip
+
+llvm
+https://github.com/llvm/llvm-project/releases/download/llvmorg-22.1.0/LLVM-22.1.0-Linux-X64.tar.xz
+# latest curl https://api.github.com/repos/llvm/llvm-project/releases/latest | grep browser | grep "$(uname -s)"
+
+ninja
+https://github.com/ninja-build/ninja/releases/download/v1.13.2/ninja-linux.zip
+# latest curl https://api.github.com/repos/ninja-build/ninja/releases/latest | grep browser | grep "$(echo "$(uname -s)" | tr [:upper:] [:lower:])"
+
+
+cmake
+https://github.com/Kitware/CMake/releases/download/v4.2.3/cmake-4.2.3-linux-x86_64.tar.gz
+# latest curl https://api.github.com/repos/Kitware/CMake/releases/latest | grep browser | grep "$(echo "$(uname -s)" | tr [:upper:] [:lower:])"
+
+python
+https://www.python.org/ftp/python/3.14.3/Python-3.14.3.tar.xz
+# latest version curl "https://www.python.org/ftp/python/" | grep "\"3\...\." | cut -d= -f2 | cut -d/ -f1  | cut -d\" -f2 | tail -n2 | head -n1
+# latest version e.g. curl "https://www.python.org/ftp/python/3.14.5/" | grep xz | head -n1
