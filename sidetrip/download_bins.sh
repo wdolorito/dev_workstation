@@ -3,12 +3,16 @@
 CURL="$(which curl 2>/dev/null)"
 KERN="$(uname -s)"
 LOWERKERN="$(echo "$KERN" | tr '[:upper:]' '[:lower:]')"
-MACH="$(uname -m)"
+MACHRAW="$(uname -m)"
+MACH="$MACHRAW"
 ARCHIVES="$(pwd)/archives"
 CLVOJDK=""
 CLVNODE=""
 CLVVAGRANT=""
 CLVLLVM=""
+CLVNINJA=""
+CLVCMAKE=""
+CLVPYTHON=""
 
 if [ -z "$CURL" ]
 then
@@ -43,7 +47,7 @@ download_openjdk() {
 download_node() {
 	URL="https://nodejs.org"
 	LATESTLTS="$($CURL -s "$URL/dist/" | grep "latest-v..\." | cut -d"=" -f2 | cut -d">" -f1 | tr -d \"/ | sort | tail -n3 | head -n1 )"
-	ENDPOINT="$($CURL -s "$URL/dist/$LATESTLTS/" | grep node | grep xz | grep $LOWERKERN | grep $MACH | cut -d">" -f1 | cut -d= -f2 | tr -d \")"
+	ENDPOINT="$($CURL -s "$URL/dist/$LATESTLTS/" | grep node | grep xz | grep "$LOWERKERN" | grep "$MACH" | cut -d">" -f1 | cut -d= -f2 | tr -d \")"
 	FILE="$(basename "$URL$ENDPOINT")"
 	CLVNODE="$ARCHIVES/$FILE"
 	if [ -f "$CLVNODE" ]
@@ -83,7 +87,50 @@ download_llvm() {
 	fi
 }
 
+download_ninja() {
+	LATEST="$($CURL -s "https://api.github.com/repos/ninja-build/ninja/releases/latest" | grep browser | grep "$LOWERKERN\.zip" | cut -d":" -f2- | tr -d "\"|[:space:]")"
+	FILE="$(basename "$LATEST")"
+	CLVNINJA="$ARCHIVES/$FILE"
+	if [ -f "$CLVNINJA" ]
+	then
+		printf "latest ninja archive exists.\t%s\n" "$CLVNINJA"
+	else
+		echo "Downloading ninja..."
+		$CURL -L -o "$CLVNINJA" "$LATEST"
+	fi
+}
+
+download_cmake() {
+	LATEST="$($CURL -s "https://api.github.com/repos/Kitware/CMake/releases/latest" | grep browser | grep tar | grep "$MACHRAW" | grep "$LOWERKERN" | cut -d":" -f2- | tr -d "\"|[:space:]")"
+	FILE="$(basename "$LATEST")"
+	CLVCMAKE="$ARCHIVES/$FILE"
+	if [ -f "$CLVCMAKE" ]
+	then
+		printf "latest cmake archive exists.\t%s\n" "$CLVCMAKE"
+	else
+		echo "Downloading cmake..."
+		$CURL -L -o "$CLVCMAKE" "$LATEST"
+	fi
+}
+
+download_python() {
+	URL="https://www.python.org/ftp/python"
+	LATEST="$($CURL -s "$URL/" | grep "\"3\...\." | cut -d= -f2 | cut -d/ -f1  | cut -d\" -f2 | tail -n2 | head -n1)"
+	FILE="$($CURL -s "$URL/$LATEST/" | grep xz | head -n1 | cut -d\" -f2 | tr -d "=")"
+	CLVPYTHON="$ARCHIVES/$FILE"
+	if [ -f "$CLVPYTHON" ]
+	then
+		printf "latest python archive exists.\t%s\n" "$CLVPYTHON"
+	else
+		echo "Downloading python..."
+		$CURL -L -o "$CLVPYTHON" "$URL/$LATEST/$FILE"
+	fi
+}
+
 download_openjdk
 download_node
 download_vagrant
 download_llvm
+download_ninja
+download_cmake
+download_python
