@@ -1,0 +1,20 @@
+# python3 for esp-idf
+# compile CC=clang AR=llvm-ar LDFLAGS=-fuse-ld=lld ./configure --enable-optimizations --prefix=/local/progs/$(whoami)
+libffi-dev
+libzstd-dev
+libncurses-dev
+libgdbm-compat-dev
+libsqlite3-dev
+tk-dev
+libreadline-dev
+libssl-dev
+liblzma-dev
+# end python3
+
+# extra esp-idf
+flex
+bison
+gperf
+ccache
+dfu-util
+# end extra esp-idf
