@@ -1,3 +1,4 @@
+# shell things
 mksh
 opendoas
 iwd
@@ -5,53 +6,72 @@ fastfetch
 physlock
 shellcheck
 
+command-not-found
+# update-command-not-found
+apt-file
+# apt-file update
+
 tmux
 fbterm
 # setcap 'cap_sys_tty_config+ep' /usr/bin/fbterm
 
+7zip
+# contrib non-free packages:
+7zip-rar
+# end shell things
+
+# sound
 pipewire-audio
 pulseaudio-utils
 pavucontrol
-brightnessctl
-# usermod -a -G input <user> (also for keyboard backlight ie. mbp 5,5)
+# end sound
 
-# bluetooth:
-bluez
-bluez-tools
-
+# media
 imv
-fbi
 mpv
 rename
 mediainfo
-7zip
+# end media
 
-# contrib non-free packages:
-7zip-rar
+# utils
+brightnessctl
+# usermod -a -G input <user> (also for keyboard backlight ie. mbp 5,5)
+# end utils
 
+# bluetooth
+bluez
+bluez-tools
+# end bluetooth
+
+# package dev
 git
 clang
 lld
 lldb
 cmake
 ninja-build
+# end package dev
 
+# disk management
 gnome-disk-utility
 testdisk
 cgpt
+# end disk management
 
-command-not-found
-# update-command-not-found
-apt-file
-# apt-file update
-
-vagrant
+# libvirt vagrant if capable (check kvm-ok from cpu-checker package)
+# add user to libvirt + kvm `usermod -aG libvirt,kvm <user>`
+vagrant-libvirt
+fuse3
 virt-manager
+python3-venv
+# end libvirt vagrant
 
+# apps
 flatpak
 fonts-recommended
 fonts-inconsolata
 fonts-font-awesome
+# end apps
 
 # suckless
 xinit
