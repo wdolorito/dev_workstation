@@ -103,7 +103,7 @@ unpack_node() {
 download_vagrant() {
 	URL="https://releases.hashicorp.com"
 	LATEST="$($CURL -s "$URL/vagrant/" | grep vagrant_ | head -n1 | awk -F\" '{print $2}')"
-	LINK="$($CURL -s "$URL$LATEST" | grep $LOWERKERN | grep zip | cut -d">" -f1 | rev | cut -d= -f1 | rev | tr -d \")"
+	LINK="$($CURL -s "$URL$LATEST" | grep "$LOWERKERN" | grep zip | cut -d">" -f1 | rev | cut -d= -f1 | rev | tr -d \")"
 	FILE="$(basename "$LINK")"
 	CLVVAGRANT="$ARCHIVES/$FILE"
 	if [ -f "$CLVVAGRANT" ]
@@ -216,6 +216,7 @@ unpack_python() {
 	if [ -n "$TAR" ]
 	then
 		echo "unpacking python to" "$SRC" "..."
+		test_src_dir
 		$TAR xf "$CLVPYTHON"  -C "$SRC"
 	else
 		echo "tar command not available."
@@ -226,31 +227,56 @@ unpack_python() {
 compile_python() {
 	echo "compiling python..."
 	PATH="$PROGS/bin:$PATH"
-	SRCDIR="$SRC/$(basename $CLVPYTHON | rev | cut -d. -f3- | rev)"
+	SRCDIR="$SRC/$(basename "$CLVPYTHON" | rev | cut -d. -f3- | rev)"
 	cd "$SRCDIR" || exit
 	make clean
 	CC=clang AR=llvm-ar LDFLAGS=-fuse-ld=lld ./configure --enable-optimizations --prefix="$PROGS"
-	make -j "$(cat /proc/cpuinfo | grep -c proc)"
+	make -j "$(grep -c proc /proc/cpuinfo)"
 	make install
 }
 
-download_openjdk
-download_node
-download_vagrant
-download_llvm
-download_ninja
-download_cmake
-download_python
+download_all() {
+	download_openjdk
+	download_node
+	download_vagrant
+	download_llvm
+	download_ninja
+	download_cmake
+	download_python
+}
 
-test_progs_dir
-unpack_openjdk
-unpack_node
-unpack_vagrant
-unpack_llvm
-unpack_ninja
-unpack_cmake
 
-test_src_dir
-unpack_python
+unpack_all() {
+	test_progs_dir
 
-compile_python
+	unpack_openjdk
+	unpack_node
+	unpack_vagrant
+	unpack_llvm
+	unpack_ninja
+	unpack_cmake
+
+	unpack_python
+	compile_python
+}
+
+do_all() {
+	download_all
+	unpack_all
+	create_archive
+}
+
+create_archive() {
+	echo "creating tar archive..."
+	if [ -d "$PROGS" ]
+	then
+		cd "$PROGS" || exit
+		ARCHIVE="$ARCHIVES"/"$(basename "$PROGS")".tar.xz
+		rm -f "$ARCHIVE"
+		$TAR -Jcvf "$ARCHIVE" ./
+	else
+		do_all
+	fi
+}
+
+create_archive
