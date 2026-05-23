@@ -267,12 +267,12 @@ do_all() {
 }
 
 create_archive() {
-	echo "creating tar archive..."
 	if [ -d "$PROGS" ]
 	then
 		cd "$PROGS" || exit
 		ARCHIVE="$ARCHIVES"/"$(basename "$PROGS")".tar.xz
 		rm -f "$ARCHIVE"
+		echo "creating tar archive..."
 		$TAR -Jcvf "$ARCHIVE" ./
 	else
 		do_all
