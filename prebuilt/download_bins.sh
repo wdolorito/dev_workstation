@@ -260,10 +260,65 @@ unpack_all() {
 	compile_python
 }
 
+do_openjdk() {
+	download_openjdk
+	test_progs_dir
+	unpack_openjdk
+}
+
+do_node() {
+	download_node
+	test_progs_dir
+	unpack_node
+}
+
+do_vagrant() {
+	download_vagrant
+	test_progs_dir
+	unpack_vagrant
+}
+
+do_llvm() {
+	download_llvm
+	test_progs_dir
+	unpack_llvm
+}
+
+do_ninja() {
+	download_ninja
+	test_progs_dir
+	unpack_ninja
+}
+
+do_cmake() {
+	download_cmake
+	test_progs_dir
+	unpack_cmake
+}
+
+do_python() {
+	download_python
+	unpack_python
+	compile_python
+}
+
 do_all() {
 	download_all
 	unpack_all
 	create_archive
+}
+
+clean_archives() {
+	rm -rf "$ARCHIVES"
+}
+
+clean_progs() {
+	rm -rf "$PROGS"
+}
+
+clean_all() {
+	clean_archives
+	clean_progs
 }
 
 create_archive() {
@@ -279,4 +334,111 @@ create_archive() {
 	fi
 }
 
-create_archive
+DCA=0
+DCP=0
+
+# one shot params
+for param in "$@"
+do
+	if [ "$param" = "all" ]
+	then
+		do_all
+		exit
+	fi
+
+	if [ "$param" = "clean_all" ]
+	then
+		DCA=1
+		DCP=1
+		clean_all
+	fi
+
+	if [ "$param" = "archive" ]
+	then
+		create_archive
+		exit
+	fi
+done
+
+DJDK=0
+DNODE=0
+DVAGRANT=0
+DLLVM=0
+DNINJA=0
+DCMAKE=0
+DPYTHON=0
+while [ "$#" -gt 0 ]
+do
+	case $1 in
+		"jdk" )
+			if [ "$DJDK" -eq 0 ]
+			then
+				DJDK=1
+				do_openjdk
+			fi
+			;;
+		"node" )
+			if [ "$DNODE" -eq 0 ]
+			then
+				DNODE=1
+				do_node
+			fi
+			;;
+		"vagrant" )
+			if [ "$DVAGRANT" -eq 0 ]
+			then
+				DVAGRANT=1
+				do_vagrant
+			fi
+			;;
+		"llvm" )
+			if [ "$DLLVM" -eq 0 ]
+			then
+				DLLVM=1
+				do_llvm
+			fi
+			;;
+		"ninja" )
+			if [ "$DNINJA" -eq 0 ]
+			then
+				DNINJA=1
+				do_ninja
+			fi
+			;;
+		"cmake" )
+			if [ "$DCMAKE" -eq 0 ]
+			then
+				DCMAKE=1
+				do_cmake
+			fi
+			;;
+		"python" )
+			if [ "$DPYTHON" -eq 0 ]
+			then
+				DPYTHON=1
+				do_python
+			fi
+			;;
+		"clean_archives" )
+			if [ "$DCA" -eq 0 ]
+			then
+				DCA=1
+				clean_archives
+			fi
+			;;
+		"clean_progs" )
+			if [ "$DCP" -eq 0 ]
+			then
+				DCP=1
+				clean_progs
+			fi
+			;;
+		?* )
+			echo "unknown option" "$1"
+			;;
+		* )
+			break
+			;;
+	esac
+	shift
+done
