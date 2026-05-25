@@ -309,7 +309,6 @@ do_python() {
 do_all() {
 	download_all
 	unpack_all
-	create_archive
 }
 
 clean_archives() {
@@ -335,6 +334,7 @@ create_archive() {
 		$TAR -Jcvf "$ARCHIVE" ./
 	else
 		do_all
+		create_archive
 	fi
 }
 
@@ -460,6 +460,8 @@ do
 				DCP=1
 				clean_progs
 			fi
+			;;
+		"clean_all" )
 			;;
 		?* )
 			echo "unknown option" "$1"
