@@ -35,6 +35,10 @@ then
 	mkdir -p "$ARCHIVES"
 fi
 
+show_usage() {
+	echo "this is help."
+}
+
 test_progs_dir() {
 	if ! [ -d "$PROGS" ]
 	then
@@ -336,29 +340,53 @@ create_archive() {
 
 DCA=0
 DCP=0
+DALL=0
+DCLEAN=0
+DARCHIVE=0
 
 # one shot params
+# mark all with flags except help to ensure that is the only function to run
 for param in "$@"
 do
+	if [ "$param" = "help" ]
+	then
+		show_usage
+	fi
+
 	if [ "$param" = "all" ]
 	then
-		do_all
-		exit
+		DALL=1
 	fi
 
 	if [ "$param" = "clean_all" ]
 	then
-		DCA=1
-		DCP=1
-		clean_all
+		DCLEAN=1
 	fi
 
 	if [ "$param" = "archive" ]
 	then
-		create_archive
-		exit
+		DARCHIVE=1
 	fi
 done
+
+if [ "$DCLEAN" -eq 1 ]
+then
+	DCA=1
+	DCP=1
+	clean_all
+fi
+
+if [ "$DALL" -eq 1 ]
+then
+	do_all
+	exit
+fi
+
+if [ "$DARCHIVE" -eq 1 ]
+then
+	create_archive
+	exit
+fi
 
 DJDK=0
 DNODE=0
