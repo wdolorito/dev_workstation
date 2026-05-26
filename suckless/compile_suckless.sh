@@ -21,10 +21,12 @@ clone_and_build() {
 	if [ -d "$DIR" ]
 	then
 		cd "$DIR" || exit
+		echo "resetting repo..." "$DIR"
 		rm -rf -- *
 		git reset --hard
 		cd "$BUILDDIR" || exit
 	else
+		echo "downloading repo..." "$URL"
 		git clone "$URL" "$DIR"
 	fi
 	rm -f "$BUILDDIR/$DIR/config.h"
@@ -42,7 +44,10 @@ clone_and_build() {
 			FN="$(basename "${patch}")"
 			if ! [ -f "$PATCHDIR/$FN" ]
 			then
+				echo "downloading patch..." "$patch"
 				curl "$patch" -o "$PATCHDIR/$FN"
+			else
+				echo "$patch" "exists"
 			fi
 			patch -Np1 -i "$PATCHDIR/$FN"
 		done
@@ -104,11 +109,13 @@ do_xob() {
 	cd "$BUILDDIR" || exit
 	if [ -d "xob" ]
 	then
+		echo "resetting repo..." "xob"
 		cd xob || exit
 		rm -rf -- *
 		git reset --hard
 		cd "$BUILDDIR" || exit
 	else
+		echo "downloading repo..." "xob"
 		git clone "https://github.com/florentc/xob.git"
 	fi
 	cd xob || exit
